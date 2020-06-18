@@ -164,20 +164,13 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
             onTap: () => Navigator.push(context,
                 MaterialPageRoute(builder: (context) => HeroExample())),
             child: Container(
-              child: ClipOval(
-                child: Container(
-                    child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                            maxWidth:
-                                130 //fixme dynamic resize based on the amount of space the text widget needs
-                            ),
-                        child: AspectRatio(
-                            aspectRatio: 1,
-                            child: Center(
-                                child: Text(
-                              "Donate Now",
-                              style: TextStyle(fontSize: 17),
-                            ))))),
+              padding: EdgeInsets.all(8.0),
+              decoration: BoxDecoration(
+                  color: Color.fromARGB(255, 0, 167, 181),
+                  borderRadius: BorderRadius.all(Radius.circular(8.0*2+17))),
+              child: Text(
+                "Donate Now",
+                style: TextStyle(fontSize: 17),
               ),
             ),
           ),
@@ -190,17 +183,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
               constraints: BoxConstraints(maxHeight: 60),
               child: Container(
                 decoration: BoxDecoration(
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black54,
-                      blurRadius: 3.0, // soften the shadow
-                      spreadRadius: 1.0, //extend the shadow
-                      offset: Offset(
-                        1.0, // Move to right 10  horizontally
-                        1.0, // Move to bottom 10 Vertically
-                      ),
-                    )
-                  ],
+                  borderRadius: BorderRadius.only(bottomRight: Radius.circular(8.0)),
                   color: Colors.white,
                 ),
                 child: Padding(
