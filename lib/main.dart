@@ -1,10 +1,15 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:isolate';
 
 import 'package:bowie/AboutACCFB.dart';
-import 'package:bowie/HeroExample.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
+
+import 'package:square_in_app_payments/models.dart';
+import 'package:square_in_app_payments/in_app_payments.dart';
 
 void main() {
   runApp(MyApp());
@@ -42,21 +47,7 @@ class MyHomePage extends StatelessWidget {
       body: Stack(children: [
         Background(),
         Center(
-          child: GestureDetector(
-            onTap: () => Navigator.push(context,
-                MaterialPageRoute(builder: (context) => HeroExample())),
-            child: Container(
-              padding: EdgeInsets.all(8.0),
-              decoration: BoxDecoration(
-                  color: Color.fromARGB(255, 0, 167, 181),
-                  borderRadius:
-                      BorderRadius.all(Radius.circular(8.0 * 2 + 17))),
-              child: Text(
-                "Donate Now",
-                style: TextStyle(fontSize: 17),
-              ),
-            ),
-          ),
+          child: DonateButton(),
         ),
         GestureDetector(
           onTap: () => Navigator.push(
@@ -82,6 +73,83 @@ class MyHomePage extends StatelessWidget {
         )
       ]),
     );
+  }
+}
+
+class DonateButton extends StatefulWidget {
+  const DonateButton({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  _DonateButtonState createState() => _DonateButtonState();
+}
+
+class _DonateButtonState extends State<DonateButton> {
+  @override
+  void initState() {
+    InAppPayments.setSquareApplicationId(
+        "sandbox-sq0idb-u0xVRfqSvIDBU-2qw__JEQ");
+    super.initState();
+  }
+
+  void _pay() {
+    InAppPayments.startCardEntryFlow(
+      onCardNonceRequestSuccess: _onCardNonceRequestSuccess,
+      onCardEntryCancel: _onCardEntryCancel,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: _pay,
+      child: Center(
+        child: Container(
+          padding: EdgeInsets.all(8.0),
+          decoration: BoxDecoration(
+              color: Color.fromARGB(255, 0, 167, 181),
+              borderRadius: BorderRadius.all(Radius.circular(8.0 * 2 + 17))),
+          child: Text(
+            "Donate Now",
+            style: TextStyle(fontSize: 17),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _onCardNonceRequestSuccess(CardDetails result) async {
+    print(result.nonce);
+
+    try {
+      print("here");
+
+      // set up POST request arguments
+      String url = 'https://donate-app-accfb.herokuapp.com/chargeForCookie';
+      Map<String, String> headers = {"Content-type": "application/json"};
+      String json =
+          '{ "nonce": "${result.nonce}" }'; // make POST request
+      Response response = await post(url, headers: headers, body: json);
+      // check the status code for the result
+      int statusCode = response.statusCode;
+      if(statusCode != 200){ //todo test
+        throw Exception(response);
+      }
+      InAppPayments.completeCardEntry(
+        onCardEntryComplete: _onCardEntryComplete,
+      );
+    } catch (e) {
+      print("here");
+      InAppPayments.showCardNonceProcessingError(jsonDecode(e.message.body)["errorMessage"]); //todo test
+    }
+
+  }
+
+  void _onCardEntryCancel() {}
+
+  void _onCardEntryComplete() {
+    // Success
   }
 }
 
@@ -128,7 +196,7 @@ class _BackgroundState extends State<Background> {
           ),
         ),
         AnimatedOpacity(
-          opacity: (_opacity-1).abs(),
+          opacity: (_opacity - 1).abs(),
           duration: Duration(seconds: 1),
           child: ImageBackground(
             image: AssetImage("assets/kb/kb1.jpg"),
