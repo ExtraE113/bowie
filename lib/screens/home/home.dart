@@ -1,16 +1,14 @@
-import 'dart:async';
-import 'dart:convert';
 
-import 'package:bowie/screens/home/about_accfb.dart';
 import 'package:bowie/services/auth.dart';
+import 'package:bowie/services/square.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
 
-import 'package:square_in_app_payments/models.dart';
-import 'package:square_in_app_payments/in_app_payments.dart';
+import 'background.dart';
+import 'package:bowie/screens/home/about_accfb.dart';
+import 'annon_donate.dart';
 
 void main() {
   runApp(MyApp());
@@ -29,15 +27,14 @@ class MyApp extends StatelessWidget {
           // closer together (more dense) than on mobile platforms.
           visualDensity: VisualDensity.adaptivePlatformDensity,
           fontFamily: 'Montserrat'),
-      home: HomePage(title: 'Alameda Food Bank'),
+      home: HomePage(),
     );
-  }
+}
 }
 
 class HomePage extends StatelessWidget {
-  HomePage({Key key, this.title}) : super(key: key);
 
-  final String title;
+  final String title = "Alameda Community Food Bank Home";
   final AuthService _auth = AuthService();
 
   @override
@@ -77,9 +74,10 @@ class HomePage extends StatelessWidget {
             alignment: Alignment.topRight,
             child: FlatButton.icon(
               color: Color.fromARGB(255, 0, 167, 181),
-                onPressed: _auth.signOut,
-                icon: Icon(Icons.settings), label: Text("Settings"),)
-        )
+              onPressed: _auth.signOut,
+              icon: Icon(Icons.settings),
+              label: Text("Settings"),
+            ))
       ]),
     );
   }
@@ -96,24 +94,22 @@ class DonateButton extends StatefulWidget {
 }
 
 class _DonateButtonState extends State<DonateButton> {
-  @override
-  void initState() {
-    InAppPayments.setSquareApplicationId(
-        "sandbox-sq0idb-u0xVRfqSvIDBU-2qw__JEQ");
-    super.initState();
-  }
+  final _auth = AuthService();
 
-  void _pay() {
-    InAppPayments.startCardEntryFlow(
-      onCardNonceRequestSuccess: _onCardNonceRequestSuccess,
-      onCardEntryCancel: _onCardEntryCancel,
-    );
+  void _donate() async{
+    //todo animate
+    final _curUser = await _auth.getUser();
+    if (_curUser.isAnonymous){
+      Navigator.push(context, MaterialPageRoute(builder: (context) => AnonDonate()));
+    } else {
+      print("non anon user wants to donate");
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: _pay,
+      onTap: _donate,
       child: Center(
         child: Container(
           padding: EdgeInsets.all(8.0),
@@ -126,110 +122,6 @@ class _DonateButtonState extends State<DonateButton> {
           ),
         ),
       ),
-    );
-  }
-
-  void _onCardNonceRequestSuccess(CardDetails result) async {
-    print(result.nonce);
-
-    try {
-      print("here");
-
-      // set up POST request arguments
-      String url = 'https://donate-app-accfb.herokuapp.com/chargeForCookie';
-      Map<String, String> headers = {"Content-type": "application/json"};
-      String json = '{ "nonce": "${result.nonce}" }'; // make POST request
-      Response response = await post(url, headers: headers, body: json);
-      // check the status code for the result
-      int statusCode = response.statusCode;
-      if (statusCode != 200) {
-        //todo test
-        throw Exception(response);
-      }
-      InAppPayments.completeCardEntry(
-        onCardEntryComplete: _onCardEntryComplete,
-      );
-    } catch (e) {
-      print("here");
-      InAppPayments.showCardNonceProcessingError(
-          jsonDecode(e.message.body)["errorMessage"]); //todo test
-    }
-  }
-
-  void _onCardEntryCancel() {}
-
-  void _onCardEntryComplete() {
-    // Success
-  }
-}
-
-class Background extends StatefulWidget {
-  @override
-  _BackgroundState createState() => _BackgroundState();
-}
-
-class _BackgroundState extends State<Background> {
-  Timer timer;
-  var _opacity;
-
-  @override
-  void initState() {
-    super.initState();
-    timer = Timer.periodic(Duration(seconds: 10), _updateBackgroundImages);
-    _opacity = 0.0;
-  }
-
-  @override
-  void dispose() {
-    timer?.cancel();
-    super.dispose();
-  }
-
-  void _updateBackgroundImages(Timer timer) {
-    //todo rather than just alternate opacity
-    //  could go through a whole list of things
-    //  where each one is an action
-    setState(() {
-      _opacity == 0.0 ? _opacity = 1.0 : _opacity = 0.0;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        AnimatedOpacity(
-          opacity: _opacity,
-          duration: Duration(seconds: 1),
-          child: ImageBackground(
-            image: AssetImage("assets/kb/kb0.jpg"),
-          ),
-        ),
-        AnimatedOpacity(
-          opacity: (_opacity - 1).abs(),
-          duration: Duration(seconds: 1),
-          child: ImageBackground(
-            image: AssetImage("assets/kb/kb1.jpg"),
-          ),
-        )
-      ],
-    );
-  }
-}
-
-class ImageBackground extends StatelessWidget {
-  var image;
-
-  ImageBackground({
-    Key key,
-    this.image,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-          image: DecorationImage(image: image, fit: BoxFit.cover)),
     );
   }
 }

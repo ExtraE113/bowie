@@ -8,6 +8,16 @@ class AuthService {
     return _auth.onAuthStateChanged;
   }
 
+  Future<FirebaseUser> getUser() async{
+    return await _auth.currentUser();
+  }
+
+  Future<String> getIdToken() async {
+    final user = await getUser();
+    final token = (await user.getIdToken()).token;
+    return token;
+  }
+
 
   // sign in with email and passwd
   Future registerWithEmailAndPassword(String email, String password) async {
@@ -22,13 +32,19 @@ class AuthService {
     return user;
   }
 
+  Future signInAnnon() async {
+    AuthResult result = await _auth.signInAnonymously();
+    FirebaseUser user = result.user;
+    return user;
+  }
+
+
   // sign out
   Future signOut() async {
     try {
       return await _auth.signOut();
-    } catch (e){
+    } catch (e) {
       print(e.toString());
     }
   }
-
 }

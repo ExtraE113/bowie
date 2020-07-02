@@ -1,11 +1,16 @@
+import 'package:bowie/screens/direct_home_page.dart';
+import 'package:bowie/screens/on_board/authenticate.dart';
 import 'package:bowie/services/auth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:bowie/screens/wrapper.dart';
 import 'package:provider/provider.dart';
 
-
-void main() => runApp(MyApp());
+void main() => runApp(
+      ChangeNotifierProvider(
+        create: (BuildContext context) => LoginAction(),
+        child: MyApp(),
+      ),
+    );
 
 class MyApp extends StatelessWidget {
   @override
@@ -20,7 +25,7 @@ class MyApp extends StatelessWidget {
             // closer together (more dense) than on mobile platforms.
             visualDensity: VisualDensity.adaptivePlatformDensity,
             fontFamily: 'Montserrat'),
-        home: Wrapper(),
+        home: DirectHomePage(),
       ),
     );
   }

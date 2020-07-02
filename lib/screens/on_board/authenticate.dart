@@ -1,10 +1,40 @@
+import 'package:bowie/screens/on_board/add_card.dart';
 import 'package:flutter/material.dart';
 import 'package:bowie/services/auth.dart';
 import 'package:bowie/utils/scroll.dart';
 import 'package:email_validator/email_validator.dart';
+import 'package:provider/provider.dart';
 
 // er, *heavily inspired by* https://medium.com/flutterpub/flutter-how-to-do-user-login-with-firebase-a6af760b14d5
 // and by "The net Ninja"'s series on youtube
+
+class LoginAction with ChangeNotifier {
+  //are we logging in or creating an account
+  //defaults to logging in (ie not creating)
+  bool login = true;
+
+  //also, we need to know if we're done on boarding
+  bool doneOnBoarding = true;
+
+  //are we logging in anonymously
+  bool anon = false;
+
+  void toggleLoginAction() {
+    if(login){
+      login = false;
+      doneOnBoarding = false;
+    } else {
+      login = true;
+      doneOnBoarding = true;
+    }
+    notifyListeners();
+  }
+
+  void loginAnon() {
+    anon = true;
+    notifyListeners();
+  }
+}
 
 //todo have space below the secondary action button when the keyboard is up
 
@@ -19,8 +49,6 @@ class _AuthenticateState extends State<Authenticate> {
 
   String _email = '';
   String _passwd = '';
-
-  bool _isLoginForm = false;
   bool _hasError = false;
 
   @override
@@ -45,7 +73,8 @@ class _AuthenticateState extends State<Authenticate> {
                       showPrimaryButton(context),
                       SizedBox(height: 20),
                       showSecondaryButton(),
-                      SizedBox(height: 20),
+                      //SizedBox(height: 10),
+                      SkipButton(),
                     ],
                   ),
                 ),
@@ -101,18 +130,23 @@ class _AuthenticateState extends State<Authenticate> {
 
   Widget showPrimaryButton(BuildContext context) {
     return new Padding(
-        padding: EdgeInsets.fromLTRB(0.0, 45.0, 0.0, 0.0),
-        child: SizedBox(
-          height: 40.0,
-          child: new RaisedButton(
+      padding: EdgeInsets.fromLTRB(0.0, 45.0, 0.0, 0.0),
+      child: SizedBox(
+        height: 40.0,
+        child: Consumer<LoginAction>(builder: (context, loginAction, child) {
+          return RaisedButton(
             elevation: 5.0,
-            shape: new RoundedRectangleBorder(
+            shape: RoundedRectangleBorder(
                 borderRadius: new BorderRadius.circular(30.0)),
             color: Colors.blue,
-            child: new Text(_isLoginForm ? 'Login' : 'Create account',
-                style: new TextStyle(fontSize: 20.0, color: Colors.white)),
+            child: Consumer<LoginAction>(
+              builder: (BuildContext context, LoginAction loginAction,
+                  Widget child) {
+                return Text(loginAction.login ? 'Login' : 'Create Account',
+                    style: TextStyle(fontSize: 20.0, color: Colors.white));
+              },
+            ),
             onPressed: () async {
-
               if (_formKey.currentState.validate()) {
                 setState(() {
                   _hasError = false;
@@ -130,15 +164,15 @@ class _AuthenticateState extends State<Authenticate> {
                   }
                 });
 
-
                 //meanwhile,
                 try {
-                  if(_isLoginForm){
-                    var result = await _authService
-                        .signInWithEmailAndPassword(_email.trim() /*todo fixme*/, _passwd);
+                  if (loginAction.login) {
+                    var result = await _authService.signInWithEmailAndPassword(
+                        _email.trim() /*todo fixme*/, _passwd);
                   } else {
-                    var result = await _authService
-                        .registerWithEmailAndPassword(_email.trim() /*todo fixme*/, _passwd);
+                    var result =
+                        await _authService.registerWithEmailAndPassword(
+                            _email.trim() /*todo fixme*/, _passwd);
                   }
                 } catch (e) {
                   setState(() {
@@ -150,23 +184,47 @@ class _AuthenticateState extends State<Authenticate> {
                 }
               }
             },
-          ),
-        ));
+          );
+        }),
+      ),
+    );
   }
 
   Widget showSecondaryButton() {
+    return Consumer<LoginAction>(
+      builder: (context, LoginAction loginAction, child) {
+        return FlatButton(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
+          onPressed: loginAction.toggleLoginAction,
+          child: Text(
+            loginAction.login
+                ? 'Create an account'
+                : 'Have an account? Sign in',
+            style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w300),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class SkipButton extends StatelessWidget {
+  const SkipButton({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final _auth = AuthService();
     return new FlatButton(
         shape: new RoundedRectangleBorder(
             borderRadius: new BorderRadius.circular(30.0)),
-        child: new Text(
-            _isLoginForm ? 'Create an account' : 'Have an account? Sign in',
-            style: new TextStyle(fontSize: 18.0, fontWeight: FontWeight.w300)),
-        onPressed: toggleFormMode);
-  }
-
-  void toggleFormMode() {
-    setState(() {
-      _isLoginForm = !_isLoginForm;
-    });
+        child: new Text('Skip for now',
+            style: new TextStyle(fontSize: 15.0, fontWeight: FontWeight.w300)),
+        onPressed: () {
+          Provider.of<LoginAction>(context, listen: false).loginAnon();
+          _auth.signInAnnon(); //todo processing... snack bar
+        });
   }
 }
