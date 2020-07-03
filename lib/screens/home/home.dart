@@ -105,7 +105,8 @@ class _DonateButtonState extends State<DonateButton> {
     if (_curUser.isAnonymous) {
       Navigator.push(context, MaterialPageRoute(builder: (context) => AnonDonate()));
     } else {
-      print("non anon user wants to donate");
+      final _square = SquareService();
+      _square.pay(true);
     }
   }
 
