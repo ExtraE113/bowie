@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:bowie/screens/on_board/add_card.dart';
 import 'package:flutter/material.dart';
 import 'package:bowie/services/auth.dart';
@@ -14,7 +16,14 @@ class LoginAction with ChangeNotifier {
   bool login = true;
 
   //also, we need to know if we're done on boarding
-  bool doneOnBoarding = true;
+  bool _doneOnBoarding = true;
+
+  bool get doneOnBoarding => _doneOnBoarding;
+
+  set doneOnBoarding(bool doneOnBoarding) {
+    _doneOnBoarding = doneOnBoarding;
+    notifyListeners();
+  }
 
   //are we logging in anonymously
   bool anon = false;
@@ -33,6 +42,12 @@ class LoginAction with ChangeNotifier {
   void loginAnon() {
     anon = true;
     notifyListeners();
+  }
+
+  void reset(){
+    anon = false;
+    doneOnBoarding = true;
+    login = true;
   }
 }
 

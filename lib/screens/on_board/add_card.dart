@@ -1,6 +1,8 @@
+import 'package:bowie/screens/on_board/authenticate.dart';
 import 'package:bowie/services/square.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class AddCard extends StatelessWidget {
   @override
@@ -28,8 +30,12 @@ class AddCardButton extends StatelessWidget {
       child: Column(
         children: [
           RaisedButton(
-            onPressed: () {
-              save();
+            onPressed: () async {
+              final _square = SquareService();
+              final bool saved = await _square.save();
+              if (saved == true){
+                Provider.of<LoginAction>(context, listen: false).doneOnBoarding = true;
+              }
             },
             child: Text("Add a card for faster donations"),
           ),

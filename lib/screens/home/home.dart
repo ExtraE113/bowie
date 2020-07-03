@@ -1,10 +1,11 @@
-
+import 'package:bowie/screens/on_board/authenticate.dart';
 import 'package:bowie/services/auth.dart';
 import 'package:bowie/services/square.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'background.dart';
 import 'package:bowie/screens/home/about_accfb.dart';
@@ -29,11 +30,10 @@ class MyApp extends StatelessWidget {
           fontFamily: 'Montserrat'),
       home: HomePage(),
     );
-}
+  }
 }
 
 class HomePage extends StatelessWidget {
-
   final String title = "Alameda Community Food Bank Home";
   final AuthService _auth = AuthService();
 
@@ -49,15 +49,14 @@ class HomePage extends StatelessWidget {
           child: DonateButton(),
         ),
         GestureDetector(
-          onTap: () => Navigator.push(
-              context, MaterialPageRoute(builder: (context) => AboutACCFB())),
+          onTap: () =>
+              Navigator.push(context, MaterialPageRoute(builder: (context) => AboutACCFB())),
           child: Container(
             child: ConstrainedBox(
               constraints: BoxConstraints(maxHeight: 60),
               child: Container(
                 decoration: BoxDecoration(
-                  borderRadius:
-                      BorderRadius.only(bottomRight: Radius.circular(8.0)),
+                  borderRadius: BorderRadius.only(bottomRight: Radius.circular(8.0)),
                   color: Colors.white,
                 ),
                 child: Padding(
@@ -74,9 +73,13 @@ class HomePage extends StatelessWidget {
             alignment: Alignment.topRight,
             child: FlatButton.icon(
               color: Color.fromARGB(255, 0, 167, 181),
-              onPressed: _auth.signOut,
-              icon: Icon(Icons.settings),
-              label: Text("Settings"),
+              onPressed: () {
+                _auth
+                    .signOut()
+                    .then((value) => Provider.of<LoginAction>(context, listen: false).reset());
+              },
+              icon: Transform.rotate(angle: 3.1415, child: Icon(Icons.exit_to_app)),
+              label: Text("Logout"),
             ))
       ]),
     );
@@ -96,10 +99,10 @@ class DonateButton extends StatefulWidget {
 class _DonateButtonState extends State<DonateButton> {
   final _auth = AuthService();
 
-  void _donate() async{
+  void _donate() async {
     //todo animate
     final _curUser = await _auth.getUser();
-    if (_curUser.isAnonymous){
+    if (_curUser.isAnonymous) {
       Navigator.push(context, MaterialPageRoute(builder: (context) => AnonDonate()));
     } else {
       print("non anon user wants to donate");
