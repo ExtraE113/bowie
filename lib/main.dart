@@ -1,3 +1,4 @@
+import 'package:bowie/screens/ThemeData.dart';
 import 'package:bowie/screens/direct_home_page.dart';
 import 'package:bowie/screens/on_board/authenticate.dart';
 import 'package:bowie/services/auth.dart';
@@ -18,13 +19,7 @@ class MyApp extends StatelessWidget {
     return StreamProvider<FirebaseUser>.value(
       value: AuthService().user,
       child: MaterialApp(
-        theme: ThemeData(
-            primarySwatch: Colors.blue,
-            // This makes the visual density adapt to the platform that you run
-            // the app on. For desktop platforms, the controls will be smaller and
-            // closer together (more dense) than on mobile platforms.
-            visualDensity: VisualDensity.adaptivePlatformDensity,
-            fontFamily: 'Montserrat'),
+        theme: accfbTheme(),
         home: DirectHomePage(),
       ),
     );
