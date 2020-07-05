@@ -38,7 +38,6 @@ class HomeDrawer extends StatelessWidget {
                 ])),
           ),
           RaisedButton(
-            splashColor: Theme.of(context).primaryColorLight,
             onPressed: () {},
             child: ListTile(
               leading: Icon(Icons.settings),
@@ -48,7 +47,6 @@ class HomeDrawer extends StatelessWidget {
           ),
           Divider(),
           RaisedButton(
-            splashColor: Theme.of(context).primaryColorLight,
             onPressed: () {},
             child: ListTile(
               leading: Icon(Icons.account_box),
@@ -58,7 +56,6 @@ class HomeDrawer extends StatelessWidget {
           ),
           Divider(),
           RaisedButton(
-            splashColor: Theme.of(context).primaryColorLight,
             onPressed: () {},
             child: ListTile(
               leading: Icon(Icons.account_balance_wallet),
@@ -68,7 +65,6 @@ class HomeDrawer extends StatelessWidget {
           ),
           Divider(),
           RaisedButton(
-            splashColor: Theme.of(context).primaryColorLight,
             onPressed: () {},
             child: ListTile(
               leading: Icon(Icons.email),
@@ -78,7 +74,6 @@ class HomeDrawer extends StatelessWidget {
           ),
           Divider(),
           RaisedButton(
-            splashColor: Theme.of(context).primaryColorLight,
             onPressed: () {
               _auth
                   .signOut()

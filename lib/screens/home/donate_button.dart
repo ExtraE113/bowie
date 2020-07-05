@@ -1,6 +1,8 @@
 import 'dart:async';
 
+import 'package:bowie/screens/home/donate_detail/donate_detail.dart';
 import 'package:bowie/services/auth.dart';
+import 'package:bowie/services/cloud_firestore.dart';
 import 'package:bowie/services/square.dart';
 
 import 'package:flutter/cupertino.dart';
@@ -13,6 +15,7 @@ class DonateButton extends StatefulWidget {
 
 class _DonateButtonState extends State<DonateButton> {
   Widget _state;
+  final FirestoreService _firestore = FirestoreService();
 
   @override
   Widget build(BuildContext context) {
@@ -32,11 +35,12 @@ class _DonateButtonState extends State<DonateButton> {
     return RaisedButton(
       onPressed: _shouldDisable ? null : () async {
 
-
         final _auth = AuthService();
         final _curUser = await _auth.getUser();
         if (_curUser.isAnonymous) {
-          UnimplementedError(); //todo
+          throw UnimplementedError(); //todo
+        } else if(!await _firestore.hasCof()){
+          Navigator.of(context).push(MaterialPageRoute(builder: (context) => DonateDetail()));
         } else {
           setState(() {
             _state = SizedBox(

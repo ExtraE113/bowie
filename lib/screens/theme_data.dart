@@ -18,9 +18,11 @@ ThemeData accfbTheme() {
   final MaterialColor primary = MaterialColor(0xFFEA7600, colorCodes);
 
   return ThemeData(
-      primarySwatch: primary,
-      visualDensity: VisualDensity.adaptivePlatformDensity,
-      fontFamily: 'Montserrat',
-      backgroundColor: primary[200],
-      appBarTheme: AppBarTheme(color: primary[800]));
+    primarySwatch: primary,
+    splashColor: primary[50],
+    visualDensity: VisualDensity.adaptivePlatformDensity,
+    fontFamily: 'Montserrat',
+    backgroundColor: primary[200],
+    appBarTheme: AppBarTheme(color: primary[800]),
+  );
 }
