@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:bowie/screens/on_board/authenticate.dart';
 import 'package:bowie/services/auth.dart';
 import 'package:http/http.dart';
+import 'package:provider/provider.dart';
 import 'package:square_in_app_payments/models.dart';
 import 'package:square_in_app_payments/in_app_payments.dart';
 
@@ -86,7 +88,7 @@ class SquareService {
       Map<String, String> headers = {"Content-type": "application/json"};
       String json =
           '{"token": "${await _token}" }'; // make POST request
-      Response response = await post(url, headers: headers, body: json).timeout(Duration(seconds: 30));
+      Response response = await post(url, headers: headers, body: json);
       // check the status code for the result
       int statusCode = response.statusCode;
       if (statusCode != 200) {

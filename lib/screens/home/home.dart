@@ -1,15 +1,40 @@
 import 'package:bowie/screens/on_board/authenticate.dart';
 import 'package:bowie/services/auth.dart';
+import 'package:bowie/services/square.dart';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'DonateButton.dart';
+import 'background.dart';
 import 'package:bowie/screens/home/about_accfb.dart';
+import 'annon_donate.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  // This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'ACCFB Donation Home',
+      theme: ThemeData(
+          primarySwatch: Colors.blue,
+          // This makes the visual density adapt to the platform that you run
+          // the app on. For desktop platforms, the controls will be smaller and
+          // closer together (more dense) than on mobile platforms.
+          visualDensity: VisualDensity.adaptivePlatformDensity,
+          fontFamily: 'Montserrat'),
+      home: HomePage(),
+    );
+  }
+}
 
 class HomePage extends StatelessWidget {
-  final String title = "Thank you!";
+  final String title = "Alameda Community Food Bank Home";
   final AuthService _auth = AuthService();
 
   @override
@@ -18,89 +43,8 @@ class HomePage extends StatelessWidget {
       appBar: AppBar(
         title: Text(title),
       ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            DrawerHeader(
-              child: Container(
-                child: Column(
-                  children: [
-                    Spacer(flex: 3),
-                    Icon(Icons.account_circle, size: 70),
-                    Spacer(),
-                    Text("Username"),
-                    Spacer(flex: 3),
-                  ],
-                ),
-              ),
-              decoration: BoxDecoration(
-                  gradient: LinearGradient(colors: <Color>[
-                Theme.of(context).colorScheme.primary,
-                Theme.of(context).colorScheme.primaryVariant,
-              ])),
-            ),
-            Card(
-              child: InkWell(
-                splashColor: Theme.of(context).primaryColorLight,
-                onTap: () {},
-                child: ListTile(
-                  leading: Icon(Icons.settings),
-                  title: Text("Settings"),
-                ),
-              ),
-            ),
-            Card(
-              child: InkWell(
-                splashColor: Theme.of(context).primaryColorLight,
-                onTap: () {},
-                child: ListTile(
-                  leading: Icon(Icons.account_box),
-                  title: Text("Account"),
-                ),
-              ),
-            ),
-            Card(
-              child: InkWell(
-                splashColor: Theme.of(context).primaryColorLight,
-                onTap: () {},
-                child: ListTile(
-                  leading: Icon(Icons.account_balance_wallet),
-                  title: Text("Payment"),
-                ),
-              ),
-            ),
-            Card(
-              child: InkWell(
-                splashColor: Theme.of(context).primaryColorLight,
-                onTap: () {},
-                child: ListTile(
-                  leading: Icon(Icons.email),
-                  title: Text("Support"),
-                ),
-              ),
-            ),
-            Card(
-              child: InkWell(
-                splashColor: Theme.of(context).primaryColorLight,
-                onTap: () {
-                  _auth
-                      .signOut()
-                      .then((value) => Provider.of<LoginAction>(context, listen: false).reset());
-                },
-                child: ListTile(
-                  title: Text("Logout"),
-                  leading: Transform.rotate(angle: 3.1415, child: Icon(Icons.exit_to_app)),
-                ),
-              ),
-            )
-          ],
-        ),
-      ),
       body: Stack(children: [
-        Container(
-          color: Theme.of(context).backgroundColor,
-        ),
+        Background(),
         Center(
           child: DonateButton(),
         ),
@@ -125,7 +69,63 @@ class HomePage extends StatelessWidget {
             alignment: Alignment.topLeft,
           ),
         ),
+        Align(
+            alignment: Alignment.topRight,
+            child: FlatButton.icon(
+              color: Color.fromARGB(255, 0, 167, 181),
+              onPressed: () {
+                _auth
+                    .signOut()
+                    .then((value) => Provider.of<LoginAction>(context, listen: false).reset());
+              },
+              icon: Transform.rotate(angle: 3.1415, child: Icon(Icons.exit_to_app)),
+              label: Text("Logout"),
+            ))
       ]),
+    );
+  }
+}
+
+//raised button or other button builtin?
+class DonateButton extends StatefulWidget {
+  const DonateButton({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  _DonateButtonState createState() => _DonateButtonState();
+}
+
+class _DonateButtonState extends State<DonateButton> {
+  final _auth = AuthService();
+
+  void _donate() async {
+    //todo animate
+    final _curUser = await _auth.getUser();
+    if (_curUser.isAnonymous) {
+      Navigator.push(context, MaterialPageRoute(builder: (context) => AnonDonate()));
+    } else {
+      final _square = SquareService();
+      _square.pay(true);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: _donate,
+      child: Center(
+        child: Container(
+          padding: EdgeInsets.all(8.0),
+          decoration: BoxDecoration(
+              color: Color.fromARGB(255, 0, 167, 181),
+              borderRadius: BorderRadius.all(Radius.circular(8.0 * 2 + 17))),
+          child: Text(
+            "Donate Now",
+            style: TextStyle(fontSize: 17),
+          ),
+        ),
+      ),
     );
   }
 }
