@@ -1,12 +1,12 @@
-import 'package:bowie/screens/on_board/authenticate.dart';
 import 'package:bowie/services/auth.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
-import 'DonateButton.dart';
+import 'donate_button.dart';
 import 'package:bowie/screens/home/about_accfb.dart';
+
+import 'home_drawer.dart';
 
 class HomePage extends StatelessWidget {
   final String title = "Thank you!";
@@ -18,85 +18,7 @@ class HomePage extends StatelessWidget {
       appBar: AppBar(
         title: Text(title),
       ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            DrawerHeader(
-              child: Container(
-                child: Column(
-                  children: [
-                    Spacer(flex: 3),
-                    Icon(Icons.account_circle, size: 70),
-                    Spacer(),
-                    Text("Username"),
-                    Spacer(flex: 3),
-                  ],
-                ),
-              ),
-              decoration: BoxDecoration(
-                  gradient: LinearGradient(colors: <Color>[
-                Theme.of(context).colorScheme.primary,
-                Theme.of(context).colorScheme.primaryVariant,
-              ])),
-            ),
-            Card(
-              child: InkWell(
-                splashColor: Theme.of(context).primaryColorLight,
-                onTap: () {},
-                child: ListTile(
-                  leading: Icon(Icons.settings),
-                  title: Text("Settings"),
-                ),
-              ),
-            ),
-            Card(
-              child: InkWell(
-                splashColor: Theme.of(context).primaryColorLight,
-                onTap: () {},
-                child: ListTile(
-                  leading: Icon(Icons.account_box),
-                  title: Text("Account"),
-                ),
-              ),
-            ),
-            Card(
-              child: InkWell(
-                splashColor: Theme.of(context).primaryColorLight,
-                onTap: () {},
-                child: ListTile(
-                  leading: Icon(Icons.account_balance_wallet),
-                  title: Text("Payment"),
-                ),
-              ),
-            ),
-            Card(
-              child: InkWell(
-                splashColor: Theme.of(context).primaryColorLight,
-                onTap: () {},
-                child: ListTile(
-                  leading: Icon(Icons.email),
-                  title: Text("Support"),
-                ),
-              ),
-            ),
-            Card(
-              child: InkWell(
-                splashColor: Theme.of(context).primaryColorLight,
-                onTap: () {
-                  _auth
-                      .signOut()
-                      .then((value) => Provider.of<LoginAction>(context, listen: false).reset());
-                },
-                child: ListTile(
-                  title: Text("Logout"),
-                  leading: Transform.rotate(angle: 3.1415, child: Icon(Icons.exit_to_app)),
-                ),
-              ),
-            )
-          ],
-        ),
-      ),
+      drawer: HomeDrawer(auth: _auth),
       body: Stack(children: [
         Container(
           color: Theme.of(context).backgroundColor,
@@ -129,3 +51,4 @@ class HomePage extends StatelessWidget {
     );
   }
 }
+

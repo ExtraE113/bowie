@@ -19,10 +19,6 @@ ThemeData accfbTheme() {
 
   return ThemeData(
       primarySwatch: primary,
-      colorScheme: ColorScheme.fromSwatch(
-        primarySwatch: primary,
-        accentColor: Color.fromRGBO(141, 103, 63, 0.8),
-      ),
       visualDensity: VisualDensity.adaptivePlatformDensity,
       fontFamily: 'Montserrat',
       backgroundColor: primary[200],
