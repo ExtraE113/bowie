@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 Map<int, Color> colorCodes = {
+  //remember to change square when changing color
   50: Color.fromRGBO(234, 118, 0, .1),
   100: Color.fromRGBO(234, 118, 0, .2),
   200: Color.fromRGBO(234, 118, 0, .3),
@@ -16,7 +17,6 @@ Map<int, Color> colorCodes = {
 
 ThemeData accfbTheme() {
   final MaterialColor primary = MaterialColor(0xFFEA7600, colorCodes);
-
   return ThemeData(
     primarySwatch: primary,
     splashColor: primary[50],

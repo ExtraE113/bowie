@@ -1,27 +1,39 @@
+import 'package:bowie/screens/on_board/thank_you.dart';
+import 'package:bowie/services/square.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'donate_amount_chips.dart';
 import 'package:bowie/screens/home/donate_detail/optional_info.dart';
 
-//todo finish
 //todo save
+//todo validate
+//todo if it's not [firstTime] edit the text (esp subtitles)
 
 class DonateDetail extends StatelessWidget {
+  final bool firstTime;
+
+  DonateDetail({@required this.firstTime});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("Donation Settings")),
-      body: DonateInfoForm(),
+      body: DonateInfoForm(firstTime: firstTime),
     );
   }
 }
 
 class DonateInfoForm extends StatefulWidget {
+
+  final bool firstTime;
+
   @override
   DonateInfoFormState createState() {
     return DonateInfoFormState();
   }
+
+  DonateInfoForm({@required this.firstTime});
 }
 
 class DonateInfoFormState extends State<DonateInfoForm> {
@@ -34,7 +46,6 @@ class DonateInfoFormState extends State<DonateInfoForm> {
     return Form(
       key: _formKey,
       child: SingleChildScrollView(
-        //todo disable overscroll when it's not needed
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
@@ -51,24 +62,35 @@ class DonateInfoFormState extends State<DonateInfoForm> {
                 subtitle: Text("You'll only have to do this once and you can edit it at any time."),
               ),
               DonationAmountFormField(),
-              TributeInformation(
-                title: "Tribute information",
-                checkBoxText: "Donate as a tribute",
-              ),
+              TributeInformationFormField(),
+              PersonalInformationFormField(),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 16.0),
                 child: ListTile(
-                  title: RaisedButton(
-                    onPressed: () {
+                  title: widget.firstTime ? RaisedButton(
+                    onPressed: () async {
                       // Validate returns true if the form is valid, or false
                       // otherwise.
                       if (_formKey.currentState.validate()) {
                         // If the form is valid, display a Snackbar.
+                        //todo save to firebase
                         Scaffold.of(context)
                             .showSnackBar(SnackBar(content: Text('Processing Data')));
+                        final _square = SquareService();
+                        final bool saved = await _square.save();
+                        if (saved == true){
+                          Navigator.of(context).push(MaterialPageRoute(builder: (context) => ThankYou()));
+                        }
                       }
+
                     },
-                    child: Text('Submit'),
+                    child: Text('Next'),
+                  ) : RaisedButton(
+                    child: Text('Save'),
+                    onPressed: (){
+                      //todo save to firebase
+                      Navigator.of(context).pop();
+                    },
                   ),
                 ),
               ),

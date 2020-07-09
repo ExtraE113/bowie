@@ -51,8 +51,10 @@ class DonationAmountFormField extends FormField<DonationAmountData> {
                               onSelected: (bool isSelected) async {
                                 int amount = await _showOtherAmountDialog(context);
                                 if (amount > 0) {
+                                  //todo if the user enters an other amount that's already a chip, just select that
+                                  //todo sort?
                                   field.value.chips.add(_ChipData(amount, isOther: true));
-                                  field.value.selectedToggle(field.value.selected.length, true);
+                                  field.value.selectedToggle(field.value.chips.length-1, true);
                                   field.didChange(field.value);
                                 }
                               },

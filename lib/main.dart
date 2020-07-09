@@ -16,7 +16,7 @@ void main() => runApp(
 
 class MyApp extends StatelessWidget {
 
-  final bool debug = true;
+  final bool debug = false;
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
       value: AuthService().user,
       child: MaterialApp(
         theme: accfbTheme(),
-        home: debug ? DonateDetail() : DirectHomePage(),
+        home: debug ? DonateDetail(firstTime: true,) : DirectHomePage(),
       ),
     );
   }

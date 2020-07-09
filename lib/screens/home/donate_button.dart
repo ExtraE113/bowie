@@ -40,7 +40,7 @@ class _DonateButtonState extends State<DonateButton> {
         if (_curUser.isAnonymous) {
           throw UnimplementedError(); //todo
         } else if(!await _firestore.hasCof()){
-          Navigator.of(context).push(MaterialPageRoute(builder: (context) => DonateDetail()));
+          Navigator.of(context).push(MaterialPageRoute(builder: (context) => DonateDetail(firstTime: true)));
         } else {
           setState(() {
             _state = SizedBox(
