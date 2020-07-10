@@ -1,3 +1,5 @@
+//todo better loading https://flutterawesome.com/a-simple-plugin-to-generate-placeholder-lines-that-emulates-text-in-a-ui/
+
 import 'dart:collection';
 
 import 'package:bowie/services/cloud_firestore.dart';

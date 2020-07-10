@@ -1,5 +1,5 @@
 //todo validate
-//todo better loading
+//todo better loading https://flutterawesome.com/a-simple-plugin-to-generate-placeholder-lines-that-emulates-text-in-a-ui/
 //todo DRY OUT
 import 'package:bowie/services/cloud_firestore.dart';
 import 'package:flutter/material.dart';
