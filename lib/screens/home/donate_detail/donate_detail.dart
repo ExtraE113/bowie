@@ -79,8 +79,7 @@ class DonateInfoFormState extends State<DonateInfoForm> {
                               // If the form is valid, display a Snackbar.
                               Scaffold.of(context)
                                   .showSnackBar(SnackBar(content: Text('Processing Data')));
-                              //todo save to firebase
-                              _formKey.currentState.save();
+                              _save();
                               final _square = SquareService();
                               final bool saved = await _square.save();
                               if (saved == true) {
@@ -94,10 +93,8 @@ class DonateInfoFormState extends State<DonateInfoForm> {
                       : RaisedButton(
                           child: Text('Save'),
                           onPressed: () {
-                            //todo save to firebase
                             if (_formKey.currentState.validate()) {
-                              _formKey.currentState.save();
-                              Navigator.of(context).pop();
+                             _save();
                             }
                           },
                         ),
@@ -108,5 +105,25 @@ class DonateInfoFormState extends State<DonateInfoForm> {
         ),
       ),
     );
+  }
+  void _save(){
+    try {
+      _formKey.currentState.save();
+      Navigator.of(context).pop();
+    } catch (e) {
+      showDialog<void>(
+        context: context,
+        barrierDismissible: true,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Something went wrong."),
+            content: SingleChildScrollView(
+              child: Text(
+                  "If the problem persists, please contact technical support."),
+            ),
+          );
+        },
+      );
+    }
   }
 }
