@@ -41,7 +41,6 @@ class HomeDrawer extends StatelessWidget {
           ),
           RaisedButton(
             onPressed: () {
-              print("pressed");
               Navigator.push(
                   context, MaterialPageRoute(builder: (context) => DonateDetail(firstTime: false)));
             },

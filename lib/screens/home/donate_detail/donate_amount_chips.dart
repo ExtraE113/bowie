@@ -1,91 +1,136 @@
 import 'dart:collection';
 
+import 'package:bowie/services/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class DonationAmountFormField extends FormField<DonationAmountData> {
-  DonationAmountFormField()
+
+class DonationAmountFormField extends StatefulWidget {
+  @override
+  _DonationAmountFormFieldState createState() => _DonationAmountFormFieldState();
+}
+
+class _DonationAmountFormFieldState extends State<DonationAmountFormField> {
+  FirestoreService _firestore;
+  Future<Map> _data;
+
+  @override
+  void initState() {
+    super.initState();
+    _firestore = FirestoreService();
+    _data = _firestore.getSettings("donate-amount-chips");
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+        future: _data,
+        builder: (BuildContext context, AsyncSnapshot<Map> snapshot) {
+          if (snapshot.hasData) {
+            if (snapshot.data.length == 0) {
+              return DonationAmount(initialValue: DonationAmountData());
+            }
+            return DonationAmount(initialValue: DonationAmountData.fromMap(snapshot.data));
+          } else {
+            return Center(child: CircularProgressIndicator());
+          }
+        });
+  }
+}
+
+class DonationAmount extends FormField<DonationAmountData> {
+  DonationAmount({@required initialValue})
       : super(
-          validator: (value) => value.selected.length > 0
-              ? null
-              : "Please select up to three default donation amounts.",
-          initialValue: DonationAmountData(),
-          builder: (FormFieldState<DonationAmountData> field) {
-            return Column(
+    validator: (value) =>
+    value.selectedCents.length > 0
+        ? null
+        : "Please select up to three default donation amounts.",
+    initialValue: initialValue,
+    onSaved: (value) {
+      final FirestoreService _firestore = FirestoreService();
+      _firestore.saveSettings(value.toMap(), "donate-amount-chips");
+    },
+    builder: (FormFieldState<DonationAmountData> field) {
+      return Column(
+        children: [
+          ListTile(
+            title: Text("Default donation amount"),
+            subtitle: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                ListTile(
-                  title: Text("Default donation amount"),
-                  subtitle: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Text("Each dollar you donate helps us provide \$7 worth of groceries."),
-                      SizedBox(height: 3),
-                      Wrap(
-                        alignment: WrapAlignment.center,
-                        spacing: 4.0,
-                        children: [
-                          for (int i = 0; i < field.value.chips.length; i++)
-                            Builder(
-                              builder: (BuildContext context) => ChoiceChip(
-                                label: Text('${field.value.chips[i].displayString()}'),
-                                selected: field.value.isSelected(i),
-                                labelStyle: Theme.of(context)
-                                    .textTheme
-                                    .bodyText1
-                                    .copyWith(color: Colors.black, fontSize: 16),
-                                onSelected: (bool isSelected) {
-                                  field.value.selectedToggle(i, isSelected);
-                                  field.didChange(field.value);
-                                },
-                                pressElevation: 0,
-                              ),
-                            ),
-                          Builder(
-                            builder: (BuildContext context) => ChoiceChip(
-                              label: Text('Other'),
-                              selected: false,
-                              labelStyle: Theme.of(context)
+                Text("Each dollar you donate helps us provide \$7 worth of groceries."),
+                SizedBox(height: 3),
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  spacing: 4.0,
+                  children: [
+                    for (int i = 0; i < field.value.chips.length; i++)
+                      Builder(
+                        builder: (BuildContext context) =>
+                            ChoiceChip(
+                              label: Text('${field.value.chips[i].displayString()}'),
+                              selected: field.value.isSelected(i),
+                              labelStyle: Theme
+                                  .of(context)
                                   .textTheme
                                   .bodyText1
                                   .copyWith(color: Colors.black, fontSize: 16),
-                              onSelected: (bool isSelected) async {
-                                int amount = await _showOtherAmountDialog(context);
-                                if (amount > 0) {
-                                  //todo if the user enters an other amount that's already a chip, just select that
-                                  //todo sort?
-                                  field.value.chips.add(_ChipData(amount, isOther: true));
-                                  field.value.selectedToggle(field.value.chips.length-1, true);
-                                  field.didChange(field.value);
-                                }
+                              onSelected: (bool isSelected) {
+                                field.value.selectedToggle(i, isSelected);
+                                field.didChange(field.value);
                               },
                               pressElevation: 0,
                             ),
-                          ),
-                        ],
                       ),
-                    ],
-                  ),
+                    Builder(
+                      builder: (BuildContext context) =>
+                          ChoiceChip(
+                            label: Text('Other'),
+                            selected: false,
+                            labelStyle: Theme
+                                .of(context)
+                                .textTheme
+                                .bodyText1
+                                .copyWith(color: Colors.black, fontSize: 16),
+                            onSelected: (bool isSelected) async {
+                              int amount = await _showOtherAmountDialog(context);
+                              if (amount > 0) {
+                                //todo if the user enters an other amount that's already a chip, just select that
+                                //todo sort?
+                                field.value.chips.add(_ChipData(amount, isOther: true));
+                                field.value.selectedToggle(field.value.chips.length - 1, true);
+                                field.didChange(field.value);
+                              }
+                            },
+                            pressElevation: 0,
+                          ),
+                    ),
+                  ],
                 ),
-                field.hasError
-                    ? Builder(
-                        builder: (BuildContext context) => Text(
-                              field.errorText,
-                              style: TextStyle(color: Theme.of(context).errorColor),
-                            ))
-                    : Container(),
               ],
-            );
-          },
-        );
+            ),
+          ),
+          field.hasError
+              ? Builder(
+              builder: (BuildContext context) =>
+                  Text(
+                    field.errorText,
+                    style: TextStyle(color: Theme
+                        .of(context)
+                        .errorColor),
+                  ))
+              : Container(),
+        ],
+      );
+    },
+  );
 }
 
 class DonationAmountData {
   _SelectedQueue _selected;
-  List<_ChipData> chips = List.from(
-      [_ChipData(100), _ChipData(500), _ChipData(1000), _ChipData(1500), _ChipData(2000)],
-      growable: true);
+  List<_ChipData> chips;
 
-  List<int> get selected {
+  List<int> get selectedCents {
     var _out = List<int>.from([], growable: true);
     _selected.forEach((element) {
       _out.add(chips[element].cents);
@@ -93,8 +138,13 @@ class DonationAmountData {
     return _out;
   }
 
-  DonationAmountData([int selected]) {
+  DonationAmountData([int selected, chips]) {
     this._selected = selected == null ? _SelectedQueue() : selected;
+    this.chips = chips == null
+        ? List.from(
+        [_ChipData(100), _ChipData(500), _ChipData(1000), _ChipData(1500), _ChipData(2000)],
+        growable: true)
+        : chips;
   }
 
   ///Toggles a [Chip] from selected to deselected
@@ -111,6 +161,27 @@ class DonationAmountData {
 
   bool isSelected(int index) {
     return _selected.contains(index);
+  }
+
+  DonationAmountData.fromMap(Map value){
+    _selected = _SelectedQueue.from(value["_selected"]);
+    chips = List.from(
+        [for (Map chip in value["chips"]) _ChipData(chip["cents"], isOther: chip["isOther"] ?? false)],
+        growable: true);
+  }
+
+
+  Map<String, dynamic> toMap() {
+    return {
+      "_selected": [for (int index in _selected) index],
+      "chips": [
+        for (_ChipData chip in chips)
+          {
+            "cents": chip.cents,
+            "isOther": chip.isOther,
+          }
+      ],
+    };
   }
 }
 
@@ -258,6 +329,14 @@ class _SelectedQueue<E> extends ListQueue<E> {
   final int maxSize;
 
   _SelectedQueue([this.maxSize = 3]);
+
+  @override
+  factory _SelectedQueue.from(Iterable elements, {maxSize = 3}){
+    _SelectedQueue result = _SelectedQueue(maxSize);
+    result.addAll(elements);
+    return result;
+  }
+
 
   @override
   void add(E value) {

@@ -25,7 +25,6 @@ class DonateDetail extends StatelessWidget {
 }
 
 class DonateInfoForm extends StatefulWidget {
-
   final bool firstTime;
 
   @override
@@ -55,11 +54,15 @@ class DonateInfoFormState extends State<DonateInfoForm> {
                 title: Container(
                   padding: EdgeInsets.only(bottom: 3),
                   child: Text(
-                    "Please set up some donation information.",
+                    widget.firstTime
+                        ? "Please set up some donation information."
+                        : "Donation information",
                     style: Theme.of(context).textTheme.headline6,
                   ),
                 ),
-                subtitle: Text("You'll only have to do this once and you can edit it at any time."),
+                subtitle: Text(widget.firstTime
+                    ? "You'll only have to do this once and you can edit it at any time."
+                    : "You can edit this at any time."),
               ),
               DonationAmountFormField(),
               TributeInformationFormField(),
@@ -67,31 +70,37 @@ class DonateInfoFormState extends State<DonateInfoForm> {
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 16.0),
                 child: ListTile(
-                  title: widget.firstTime ? RaisedButton(
-                    onPressed: () async {
-                      // Validate returns true if the form is valid, or false
-                      // otherwise.
-                      if (_formKey.currentState.validate()) {
-                        // If the form is valid, display a Snackbar.
-                        //todo save to firebase
-                        Scaffold.of(context)
-                            .showSnackBar(SnackBar(content: Text('Processing Data')));
-                        final _square = SquareService();
-                        final bool saved = await _square.save();
-                        if (saved == true){
-                          Navigator.of(context).push(MaterialPageRoute(builder: (context) => ThankYou()));
-                        }
-                      }
-
-                    },
-                    child: Text('Next'),
-                  ) : RaisedButton(
-                    child: Text('Save'),
-                    onPressed: (){
-                      //todo save to firebase
-                      Navigator.of(context).pop();
-                    },
-                  ),
+                  title: widget.firstTime
+                      ? RaisedButton(
+                          onPressed: () async {
+                            // Validate returns true if the form is valid, or false
+                            // otherwise.
+                            if (_formKey.currentState.validate()) {
+                              // If the form is valid, display a Snackbar.
+                              Scaffold.of(context)
+                                  .showSnackBar(SnackBar(content: Text('Processing Data')));
+                              //todo save to firebase
+                              _formKey.currentState.save();
+                              final _square = SquareService();
+                              final bool saved = await _square.save();
+                              if (saved == true) {
+                                Navigator.of(context)
+                                    .push(MaterialPageRoute(builder: (context) => ThankYou()));
+                              }
+                            }
+                          },
+                          child: Text('Next'),
+                        )
+                      : RaisedButton(
+                          child: Text('Save'),
+                          onPressed: () {
+                            //todo save to firebase
+                            if (_formKey.currentState.validate()) {
+                              _formKey.currentState.save();
+                              Navigator.of(context).pop();
+                            }
+                          },
+                        ),
                 ),
               ),
             ],
