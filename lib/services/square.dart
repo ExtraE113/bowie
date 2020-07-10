@@ -27,16 +27,32 @@ class SquareService {
   }
 
   void _saveOnCardNonceRequestSuccess(CardDetails result) async {
-    final token = _auth.getIdToken();
+    //todo wrap all this with a less specific error message (with code ideally)
+    var token;
     try {
-      // set up POST request arguments
-      String url = 'http://10.0.2.2:8080'; //todo remember to change for production!
-      Map<String, String> headers = {"Content-type": "application/json"};
-      String json =
-          '{ "nonce": "${result.nonce}", "token": "${await token}" }'; // make POST request
-      Response response = await post(url, headers: headers, body: json);
-      // check the status code for the result
-      int statusCode = response.statusCode;
+      token = await _auth.getIdToken();
+    } on NoSuchMethodError catch (e) {
+      print("tried to catch....?");
+      InAppPayments.showCardNonceProcessingError(
+          "Something has gone wrong, because it appears you are not signed in to any account. Please sign in and then try again.");
+    }
+
+    // set up POST request arguments
+    String url = 'http://10.0.2.2:8080'; //todo remember to change for production!
+    Map<String, String> headers = {"Content-type": "application/json"};
+    String json = '{ "nonce": "${result.nonce}", "token": "${await token}" }'; // make POST request
+    Response response;
+    try {
+      response = await post(url, headers: headers, body: json).timeout(Duration(seconds: 30));
+    } catch (e) {
+      InAppPayments.showCardNonceProcessingError(
+        //todo show same error as from homepage
+          "Unable to contact the server. Please check your internet connection and try again, or contact support if the problem persists.");
+    }
+    // check the status code for the result
+    int statusCode = response.statusCode;
+    print(statusCode);
+    try {
       if (statusCode != 200) {
         //todo test
         throw Exception(response);
@@ -45,7 +61,6 @@ class SquareService {
         onCardEntryComplete: _saveOnCardEntryComplete,
       );
     } catch (e) {
-      print("here");
       InAppPayments.showCardNonceProcessingError(
           jsonDecode(e.message.body)["errorMessage"]); //todo check if works
     }
@@ -84,9 +99,9 @@ class SquareService {
       // set up POST request arguments
       String url = 'http://10.0.2.2:8081'; //todo remember to change for production!
       Map<String, String> headers = {"Content-type": "application/json"};
-      String json =
-          '{"token": "${await _token}" }'; // make POST request
-      Response response = await post(url, headers: headers, body: json).timeout(Duration(seconds: 30));
+      String json = '{"token": "${await _token}" }'; // make POST request
+      Response response =
+          await post(url, headers: headers, body: json).timeout(Duration(seconds: 30));
       // check the status code for the result
       int statusCode = response.statusCode;
       if (statusCode != 200) {

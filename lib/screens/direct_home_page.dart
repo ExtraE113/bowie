@@ -2,7 +2,6 @@ import 'package:bowie/screens/home/home.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'on_board/add_card.dart';
 import 'on_board/authenticate.dart';
 
 class DirectHomePage extends StatelessWidget {
@@ -23,14 +22,10 @@ class DirectHomePage extends StatelessWidget {
         return HomePage();
       } else if (!_login.login) {
         //if we're not logging in (ie we're signing up)
-        if(_login.doneOnBoarding){
-          return HomePage();
-        } else {
-          return AddCard();
-        }
+        return HomePage();
       }
+      // if all else fails, take us to the login page (this code should never be reached)
+      return Authenticate();
     }
-    // if all else fails, take us to the login page (this code should never be reached)
-    return Authenticate();
   }
 }

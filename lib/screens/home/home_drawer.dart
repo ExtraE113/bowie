@@ -1,3 +1,4 @@
+import 'package:bowie/screens/home/donate_detail/donate_detail.dart';
 import 'package:bowie/screens/on_board/authenticate.dart';
 import 'package:bowie/services/auth.dart';
 
@@ -9,7 +10,8 @@ class HomeDrawer extends StatelessWidget {
   const HomeDrawer({
     Key key,
     @required AuthService auth,
-  }) : _auth = auth, super(key: key);
+  })  : _auth = auth,
+        super(key: key);
 
   final AuthService _auth;
 
@@ -33,13 +35,15 @@ class HomeDrawer extends StatelessWidget {
             ),
             decoration: BoxDecoration(
                 gradient: LinearGradient(colors: <Color>[
-                  Theme.of(context).colorScheme.primary,
-                  Theme.of(context).colorScheme.primaryVariant,
-                ])),
+              Theme.of(context).colorScheme.primary,
+              Theme.of(context).colorScheme.primaryVariant,
+            ])),
           ),
           RaisedButton(
-            splashColor: Theme.of(context).primaryColorLight,
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                  context, MaterialPageRoute(builder: (context) => DonateDetail(firstTime: false)));
+            },
             child: ListTile(
               leading: Icon(Icons.settings),
               title: Text("Settings"),
@@ -48,17 +52,15 @@ class HomeDrawer extends StatelessWidget {
           ),
           Divider(),
           RaisedButton(
-            splashColor: Theme.of(context).primaryColorLight,
-            onPressed: () {},
             child: ListTile(
               leading: Icon(Icons.account_box),
               title: Text("Account"),
             ),
             color: Colors.grey[50],
+            onPressed: () {},
           ),
           Divider(),
           RaisedButton(
-            splashColor: Theme.of(context).primaryColorLight,
             onPressed: () {},
             child: ListTile(
               leading: Icon(Icons.account_balance_wallet),
@@ -68,7 +70,6 @@ class HomeDrawer extends StatelessWidget {
           ),
           Divider(),
           RaisedButton(
-            splashColor: Theme.of(context).primaryColorLight,
             onPressed: () {},
             child: ListTile(
               leading: Icon(Icons.email),
@@ -78,7 +79,6 @@ class HomeDrawer extends StatelessWidget {
           ),
           Divider(),
           RaisedButton(
-            splashColor: Theme.of(context).primaryColorLight,
             onPressed: () {
               _auth
                   .signOut()

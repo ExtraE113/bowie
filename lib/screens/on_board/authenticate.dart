@@ -1,6 +1,3 @@
-import 'dart:math';
-
-import 'package:bowie/screens/on_board/add_card.dart';
 import 'package:flutter/material.dart';
 import 'package:bowie/services/auth.dart';
 import 'package:bowie/utils/scroll.dart';
@@ -153,7 +150,7 @@ class _AuthenticateState extends State<Authenticate> {
             elevation: 5.0,
             shape: RoundedRectangleBorder(
                 borderRadius: new BorderRadius.circular(30.0)),
-            color: Colors.blue,
+            color: Theme.of(context).primaryColor,
             child: Consumer<LoginAction>(
               builder: (BuildContext context, LoginAction loginAction,
                   Widget child) {
@@ -238,8 +235,11 @@ class SkipButton extends StatelessWidget {
         child: new Text('Skip for now',
             style: new TextStyle(fontSize: 15.0, fontWeight: FontWeight.w300)),
         onPressed: () {
+          Scaffold.of(context).showSnackBar(SnackBar(
+            content: Text("Processing..."),
+          ));
           Provider.of<LoginAction>(context, listen: false).loginAnon();
-          _auth.signInAnnon(); //todo processing... snack bar
+          _auth.signInAnnon();
         });
   }
 }
