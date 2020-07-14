@@ -38,13 +38,15 @@ class SquareService {
     }
 
     // set up POST request arguments
-    String url = 'http://10.0.2.2:8080'; //todo remember to change for production!
+    String url = 'http://localhost:8080';
     Map<String, String> headers = {"Content-type": "application/json"};
     String json = '{ "nonce": "${result.nonce}", "token": "${await token}" }'; // make POST request
     Response response;
     try {
       response = await post(url, headers: headers, body: json).timeout(Duration(seconds: 30));
-    } catch (e) {
+      print("RESPONSE $response");
+    } catch (e, st) {
+      print(st);
       InAppPayments.showCardNonceProcessingError(
         //todo show same error as from homepage
           "Unable to contact the server. Please check your internet connection and try again, or contact support if the problem persists.");
@@ -97,7 +99,7 @@ class SquareService {
     final _token = _auth.getIdToken();
     try {
       // set up POST request arguments
-      String url = 'http://10.0.2.2:8081'; //todo remember to change for production!
+      String url = 'http://localhost:8080'; //todo remember to change for production!
       Map<String, String> headers = {"Content-type": "application/json"};
       String json = '{"token": "${await _token}" }'; // make POST request
       Response response =

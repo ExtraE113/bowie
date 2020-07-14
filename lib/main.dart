@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
       value: AuthService().user,
       child: MaterialApp(
         theme: accfbTheme(),
-        home: debug ? DonateDetail(firstTime: true,) : DirectHomePage(),
+        home: debug ? DonateDetail(firstTime: true) : DirectHomePage(),
       ),
     );
   }

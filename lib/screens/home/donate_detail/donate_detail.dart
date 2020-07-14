@@ -1,7 +1,9 @@
+import 'package:bowie/screens/on_board/authenticate.dart';
 import 'package:bowie/screens/on_board/thank_you.dart';
 import 'package:bowie/services/square.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'donate_amount_chips.dart';
 import 'package:bowie/screens/home/donate_detail/optional_info.dart';
@@ -83,8 +85,9 @@ class DonateInfoFormState extends State<DonateInfoForm> {
                               final _square = SquareService();
                               final bool saved = await _square.save();
                               if (saved == true) {
+                                Provider.of<LoginAction>(context).doneOnBoarding = true;
                                 Navigator.of(context)
-                                    .push(MaterialPageRoute(builder: (context) => ThankYou()));
+                                    .pushReplacement(MaterialPageRoute(builder: (context) => ThankYou()));
                               }
                             }
                           },
@@ -109,7 +112,6 @@ class DonateInfoFormState extends State<DonateInfoForm> {
   void _save(){
     try {
       _formKey.currentState.save();
-      Navigator.of(context).pop();
     } catch (e) {
       showDialog<void>(
         context: context,

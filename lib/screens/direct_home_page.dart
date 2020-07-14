@@ -1,3 +1,4 @@
+import 'package:bowie/screens/home/donate_detail/donate_detail.dart';
 import 'package:bowie/screens/home/home.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -21,8 +22,11 @@ class DirectHomePage extends StatelessWidget {
         //if we're logging in take us to the home page
         return HomePage();
       } else if (!_login.login) {
-        //if we're not logging in (ie we're signing up)
-        return HomePage();
+        if(_login.doneOnBoarding){
+          return HomePage();
+        } else {
+          return DonateDetail(firstTime: true);
+        }
       }
       // if all else fails, take us to the login page (this code should never be reached)
       return Authenticate();

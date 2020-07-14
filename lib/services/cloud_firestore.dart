@@ -16,7 +16,7 @@ class FirestoreService {
       return false;
     }
 
-    return _userDocData["has_cof"];
+    return _userDocData["has_cof"] ?? false;
   }
 
   Future<DocumentReference> documentRef() async {
@@ -28,14 +28,17 @@ class FirestoreService {
 
   Future<void> saveSettings(Map value, String field) async {
     final DocumentReference _userDocRef = await documentRef();
-    return await _userDocRef.updateData({"settings.$field": value});
+    return await _userDocRef.setData({"settings.$field": value}, merge: true);
   }
 
   Future<Map> getSettings(String field) async {
     final DocumentReference _userDocRef = await documentRef();
     final _userDoc = await _userDocRef.get();
-    final _userDocData = _userDoc.data["settings"][field];
-
-    return _userDocData ?? Map();
+    print(_userDoc.data);
+    if(_userDoc.data == null){
+      return Map();
+    }
+    final _userDocSettings = _userDoc.data["settings.$field"];
+    return _userDocSettings ?? Map();
   }
 }

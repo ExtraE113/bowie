@@ -86,7 +86,7 @@ class _AuthenticateState extends State<Authenticate> {
                       SizedBox(height: 20),
                       showSecondaryButton(),
                       //SizedBox(height: 10),
-                      SkipButton(),
+                      //SkipButton(), todo: after init release we can do this, but not a priority.
                     ],
                   ),
                 ),
