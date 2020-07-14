@@ -28,7 +28,10 @@ class HomeDrawer extends StatelessWidget {
                   Spacer(flex: 3),
                   Icon(Icons.account_circle, size: 70),
                   Spacer(),
-                  Text("Username"),
+                  FutureBuilder(
+                    future: _auth.getUser(),
+                    builder: (BuildContext context, data) => Text(data.hasData ? data.data.email : "Username"),
+                  ),
                   Spacer(flex: 3),
                 ],
               ),
@@ -42,7 +45,9 @@ class HomeDrawer extends StatelessWidget {
           RaisedButton(
             onPressed: () {
               Navigator.push(
-                  context, MaterialPageRoute(builder: (context) => DonateDetail(firstTime: false)));
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => DonateDetail(firstTime: false)));
             },
             child: ListTile(
               leading: Icon(Icons.settings),
@@ -80,13 +85,13 @@ class HomeDrawer extends StatelessWidget {
           Divider(),
           RaisedButton(
             onPressed: () {
-              _auth
-                  .signOut()
-                  .then((value) => Provider.of<LoginAction>(context, listen: false).reset());
+              _auth.signOut().then((value) =>
+                  Provider.of<LoginAction>(context, listen: false).reset());
             },
             child: ListTile(
               title: Text("Logout"),
-              leading: Transform.rotate(angle: 3.1415, child: Icon(Icons.exit_to_app)),
+              leading: Transform.rotate(
+                  angle: 3.1415, child: Icon(Icons.exit_to_app)),
             ),
             color: Colors.grey[50],
           )
