@@ -99,7 +99,7 @@ class DonationAmount extends FormField<DonationAmountData> {
                               if (amount > 0) {
                                 //todo if the user enters an other amount that's already a chip, just select that
                                 //todo sort?
-                                field.value.chips.add(_ChipData(amount, isOther: true));
+                                field.value.chips.add(ChipData(amount, isOther: true));
                                 field.value.selectedToggle(field.value.chips.length - 1, true);
                                 field.didChange(field.value);
                               }
@@ -130,7 +130,7 @@ class DonationAmount extends FormField<DonationAmountData> {
 
 class DonationAmountData {
   _SelectedQueue _selected;
-  List<_ChipData> chips;
+  List<ChipData> chips;
 
   List<int> get selectedCents {
     var _out = List<int>.from([], growable: true);
@@ -144,7 +144,7 @@ class DonationAmountData {
     this._selected = selected == null ? _SelectedQueue() : selected;
     this.chips = chips == null
         ? List.from(
-        [_ChipData(100), _ChipData(500), _ChipData(1000), _ChipData(1500), _ChipData(2000)],
+        [ChipData(100), ChipData(500), ChipData(1000), ChipData(1500), ChipData(2000)],
         growable: true)
         : chips;
   }
@@ -168,7 +168,7 @@ class DonationAmountData {
   DonationAmountData.fromMap(Map value){
     _selected = _SelectedQueue.from(value["_selected"]);
     chips = List.from(
-        [for (Map chip in value["chips"]) _ChipData(chip["cents"], isOther: chip["isOther"] ?? false)],
+        [for (Map chip in value["chips"]) ChipData(chip["cents"], isOther: chip["isOther"] ?? false)],
         growable: true);
   }
 
@@ -177,7 +177,7 @@ class DonationAmountData {
     return {
       "_selected": [for (int index in _selected) index],
       "chips": [
-        for (_ChipData chip in chips)
+        for (ChipData chip in chips)
           {
             "cents": chip.cents,
             "isOther": chip.isOther,
@@ -289,11 +289,11 @@ class _OtherAmountFormState extends State<_OtherAmountForm> {
   }
 }
 
-class _ChipData {
+class ChipData {
   int cents;
   bool isOther;
 
-  _ChipData(int cents, {bool isOther = false}) {
+  ChipData(int cents, {bool isOther = false}) {
     this.cents = cents;
     this.isOther = isOther;
   }

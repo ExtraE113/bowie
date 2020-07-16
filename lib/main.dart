@@ -1,5 +1,7 @@
-import 'package:bowie/screens/home/donate_detail/donate_detail.dart';
-import 'package:bowie/screens/theme_data.dart';
+import 'package:bowie/screens/donate_detail/donate_detail.dart';
+import 'package:bowie/screens/on_board/elevator_pitch.dart';
+import 'package:bowie/screens/on_board/thank_you.dart';
+import 'package:bowie/theme_data.dart';
 import 'package:bowie/screens/direct_home_page.dart';
 import 'package:bowie/screens/on_board/authenticate.dart';
 import 'package:bowie/services/auth.dart';
@@ -15,16 +17,21 @@ void main() => runApp(
     );
 
 class MyApp extends StatelessWidget {
-
-  final bool debug = false;
-
   @override
   Widget build(BuildContext context) {
     return StreamProvider<FirebaseUser>.value(
       value: AuthService().user,
       child: MaterialApp(
         theme: accfbTheme(),
-        home: debug ? DonateDetail(firstTime: true) : DirectHomePage(),
+        initialRoute: "/",
+        routes: {
+          '/': (context) => DirectHomePage(),
+          '/carousel': (context) => OnBoardCarousel(),
+          '/donate-detail-first': (context) => DonateDetail(firstTime: true),
+          '/donate-detail': (context) => DonateDetail(firstTime: false),
+          '/auth': (context) => Authenticate(),
+          '/thanks': (context) => ThankYou()
+        },
       ),
     );
   }

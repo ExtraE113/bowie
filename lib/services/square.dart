@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:bowie/services/auth.dart';
 import 'package:http/http.dart';
@@ -9,6 +8,7 @@ import 'package:square_in_app_payments/in_app_payments.dart';
 class SquareService {
   final Completer _completer = new Completer<bool>();
   final _auth = AuthService();
+  int cents = 1;
 
   //<editor-fold desc="save">
   // start the process of saving.
@@ -18,7 +18,8 @@ class SquareService {
   // or resolves to an error if something went wrong.
   // todo does this have unexpected behavior if a method that returns a future is called again before the first future resolves?
   Future<bool> save() {
-    InAppPayments.setSquareApplicationId("sandbox-sq0idb-u0xVRfqSvIDBU-2qw__JEQ");
+    InAppPayments.setSquareApplicationId(
+        "sandbox-sq0idb-u0xVRfqSvIDBU-2qw__JEQ");
     InAppPayments.startCardEntryFlow(
       onCardNonceRequestSuccess: _saveOnCardNonceRequestSuccess,
       onCardEntryCancel: _saveOnCardEntryCancel,
@@ -38,24 +39,27 @@ class SquareService {
     }
 
     // set up POST request arguments
-    String url = 'http://localhost:8080';
+    String url = 'http://192.168.7.160:8080';
     Map<String, String> headers = {"Content-type": "application/json"};
-    String json = '{ "nonce": "${result.nonce}", "token": "${await token}" }'; // make POST request
+    String json =
+        '{ "nonce": "${result.nonce}", "token": "${await token}" }'; // make POST request
     Response response;
     try {
-      response = await post(url, headers: headers, body: json).timeout(Duration(seconds: 30));
+      response = await post(url, headers: headers, body: json)
+          .timeout(Duration(seconds: 30));
       print("RESPONSE $response");
     } catch (e, st) {
-      print(st);
       InAppPayments.showCardNonceProcessingError(
-        //todo show same error as from homepage
+          //todo show same error as from homepage
           "Unable to contact the server. Please check your internet connection and try again, or contact support if the problem persists.");
     }
     // check the status code for the result
     int statusCode = response.statusCode;
+    print(response.body.toString());
     print(statusCode);
     try {
       if (statusCode != 200) {
+        print("fail");
         //todo test
         throw Exception(response);
       }
@@ -63,8 +67,9 @@ class SquareService {
         onCardEntryComplete: _saveOnCardEntryComplete,
       );
     } catch (e) {
+      print("caught, showing error");
       InAppPayments.showCardNonceProcessingError(
-          jsonDecode(e.message.body)["errorMessage"]); //todo check if works
+          "Something went wrong. Try again later, or contact support if the problem persists.");
     }
   }
 
@@ -85,10 +90,15 @@ class SquareService {
   // false if a nonce was requested and canceled,
   // or resolves to an error if something went wrong.
   // todo does this have unexpected behavior if a method that returns a future is called again before the first future resolves?
-  Future<bool> pay(bool isCof) {
-    InAppPayments.setSquareApplicationId("sandbox-sq0idb-u0xVRfqSvIDBU-2qw__JEQ");
+  //  ^^ almost for sure. possible fix is to spin up a new object that handles cents and the completer
+  Future<bool> pay(bool isCof, int cents) {
+    this.cents = cents;
+    print("INPUT PAYMENT CENTS: ${this.cents}");
+    InAppPayments.setSquareApplicationId(
+        "sandbox-sq0idb-u0xVRfqSvIDBU-2qw__JEQ");
     if (!isCof) {
-      throw UnimplementedError("payments without cof not yet implemented"); //todo
+      throw UnimplementedError(
+          "payments without cof not yet implemented"); //todo
     } else {
       _tellServer();
     }
@@ -97,19 +107,24 @@ class SquareService {
 
   void _tellServer() async {
     final _token = _auth.getIdToken();
+    print("PAYMENT CENTS: ${this.cents}");
     try {
       // set up POST request arguments
-      String url = 'http://localhost:8080'; //todo remember to change for production!
+      String url =
+          'http://192.168.7.160:8081'; //todo remember to change for production!
       Map<String, String> headers = {"Content-type": "application/json"};
-      String json = '{"token": "${await _token}" }'; // make POST request
-      Response response =
-          await post(url, headers: headers, body: json).timeout(Duration(seconds: 30));
+      String json =
+          '{"cents": "${this.cents}", "token": "${await _token}"}'; // make POST request
+      print(json);
+      Response response = await post(url, headers: headers, body: json)
+          .timeout(Duration(seconds: 30));
       // check the status code for the result
       int statusCode = response.statusCode;
       if (statusCode != 200) {
         //todo test
         throw Exception(response);
       }
+      print(response.body);
       _completer.complete(true);
     } catch (e) {
       _completer.completeError(e); //todo test

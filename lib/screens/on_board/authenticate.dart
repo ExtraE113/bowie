@@ -9,8 +9,8 @@ import 'package:provider/provider.dart';
 
 class LoginAction with ChangeNotifier {
   //are we logging in or creating an account
-  //defaults to logging in (ie not creating)
-  bool login = true;
+  //defaults to not logging in (ie creating)
+  bool login = false;
 
   //also, we need to know if we're done on boarding
   bool _doneOnBoarding = true;
@@ -26,7 +26,7 @@ class LoginAction with ChangeNotifier {
   bool anon = false;
 
   void toggleLoginAction() {
-    if(login){
+    if (login) {
       login = false;
       doneOnBoarding = false;
     } else {
@@ -41,7 +41,7 @@ class LoginAction with ChangeNotifier {
     notifyListeners();
   }
 
-  void reset(){
+  void reset() {
     anon = false;
     doneOnBoarding = true;
     login = true;
@@ -67,7 +67,13 @@ class _AuthenticateState extends State<Authenticate> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text("Sign in"),
+          title: Consumer<LoginAction>(
+            builder: (BuildContext context, LoginAction value, Widget child) {
+              return value.login
+                  ? Text("Sign in")
+                  : Text("Start supporting the food bank");
+            },
+          ),
         ),
         body: Container(
           padding: EdgeInsets.symmetric(horizontal: 20),
@@ -181,10 +187,12 @@ class _AuthenticateState extends State<Authenticate> {
                   if (loginAction.login) {
                     var result = await _authService.signInWithEmailAndPassword(
                         _email.trim() /*todo fixme*/, _passwd);
+                    Navigator.of(context).pushReplacementNamed('/');
                   } else {
                     var result =
                         await _authService.registerWithEmailAndPassword(
                             _email.trim() /*todo fixme*/, _passwd);
+                    Navigator.of(context).pushReplacementNamed('/donate-detail-first');
                   }
                 } catch (e) {
                   setState(() {

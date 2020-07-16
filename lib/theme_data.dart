@@ -17,6 +17,9 @@ Map<int, Color> colorCodes = {
 
 ThemeData accfbTheme() {
   final MaterialColor primary = MaterialColor(0xFFEA7600, colorCodes);
+//  colorCodes.forEach((key, value) {
+//    print("[$key] ${value.value.toRadixString(16)}");
+//  });
   return ThemeData(
     primarySwatch: primary,
     splashColor: primary[50],
@@ -24,5 +27,5 @@ ThemeData accfbTheme() {
     fontFamily: 'Montserrat',
     backgroundColor: primary[200],
     appBarTheme: AppBarTheme(color: primary[800]),
-  );
+  ).copyWith(backgroundColor: Colors.white);
 }

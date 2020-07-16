@@ -33,7 +33,7 @@ dependencies:
   cloud_firestore: ^0.13.7
   provider: ^4.1.3
   email_validator: ^1.0.0
-  json_annotation: ^3.0.0
+  flutter_svg: ^0.17.1
 
 
 
@@ -64,6 +64,7 @@ flutter:
   assets:
      - assets/
      - assets/kb/
+     - assets/onboard/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

@@ -1,4 +1,4 @@
-import 'package:bowie/screens/home/donate_detail/donate_detail.dart';
+import 'package:bowie/screens/donate_detail/donate_detail.dart';
 import 'package:bowie/screens/on_board/authenticate.dart';
 import 'package:bowie/services/auth.dart';
 
@@ -20,6 +20,7 @@ class HomeDrawer extends StatelessWidget {
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
+        shrinkWrap: true,
         children: [
           DrawerHeader(
             child: Container(

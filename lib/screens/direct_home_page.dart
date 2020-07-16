@@ -1,35 +1,49 @@
-import 'package:bowie/screens/home/donate_detail/donate_detail.dart';
+import 'dart:async';
+
 import 'package:bowie/screens/home/home.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:bowie/services/auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'donate_detail/donate_detail.dart';
 import 'on_board/authenticate.dart';
 
-class DirectHomePage extends StatelessWidget {
+class DirectHomePage extends StatefulWidget {
+  @override
+  _DirectHomePageState createState() => _DirectHomePageState();
+}
+
+class _DirectHomePageState extends State<DirectHomePage> {
+  StreamSubscription _subscription;
+
+  @override
+  void initState() {
+    final stream = AuthService().user;
+    _subscription = stream.listen(
+      (event) {
+        if (event == null) {
+          Navigator.of(context).pushReplacementNamed('/carousel');
+        }
+      },
+      cancelOnError: false,
+    );
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final _user = Provider.of<FirebaseUser>(context);
-    final _login = Provider.of<LoginAction>(context);
-
-    //if there's no user, no matter what, take us to the login page
-    if (_user == null) {
-      return Authenticate();
-    } else {
-      //if we are anon, take us to the home page
-      if (_login.anon) {
+    return Consumer<LoginAction>(
+        builder: (BuildContext context, LoginAction value, Widget child) {
+      if (value.doneOnBoarding) {
         return HomePage();
-      } else if (_login.login) {
-        //if we're logging in take us to the home page
-        return HomePage();
-      } else if (!_login.login) {
-        if(_login.doneOnBoarding){
-          return HomePage();
-        } else {
-          return DonateDetail(firstTime: true);
-        }
+      } else {
+        return DonateDetail(firstTime: true);
       }
-      // if all else fails, take us to the login page (this code should never be reached)
-      return Authenticate();
-    }
+    });
+  }
+
+  @override
+  void dispose() {
+    _subscription.cancel();
+    super.dispose();
   }
 }

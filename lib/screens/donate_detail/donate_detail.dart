@@ -1,12 +1,12 @@
 import 'package:bowie/screens/on_board/authenticate.dart';
-import 'package:bowie/screens/on_board/thank_you.dart';
 import 'package:bowie/services/square.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'donate_amount_chips.dart';
-import 'package:bowie/screens/home/donate_detail/optional_info.dart';
+
+import 'optional_info.dart';
 
 //todo save
 //todo validate
@@ -79,15 +79,17 @@ class DonateInfoFormState extends State<DonateInfoForm> {
                             // otherwise.
                             if (_formKey.currentState.validate()) {
                               // If the form is valid, display a Snackbar.
-                              Scaffold.of(context)
-                                  .showSnackBar(SnackBar(content: Text('Processing Data')));
+                              Scaffold.of(context).showSnackBar(
+                                  SnackBar(content: Text('Processing Data')));
                               _save();
                               final _square = SquareService();
                               final bool saved = await _square.save();
                               if (saved == true) {
-                                Provider.of<LoginAction>(context).doneOnBoarding = true;
-                                Navigator.of(context)
-                                    .pushReplacement(MaterialPageRoute(builder: (context) => ThankYou()));
+                                print("should notify listeners");
+                                Provider.of<LoginAction>(context, listen: false)
+                                    .doneOnBoarding = true;
+                                print("here");
+                                Navigator.of(context).pushReplacementNamed('/');
                               }
                             }
                           },
@@ -97,7 +99,14 @@ class DonateInfoFormState extends State<DonateInfoForm> {
                           child: Text('Save'),
                           onPressed: () {
                             if (_formKey.currentState.validate()) {
-                             _save();
+                              _save();
+                              //fully just lying to the user, but it feels better
+                              Future.delayed(Duration(seconds: 1)).then((_) {
+                                Navigator.of(context).pop();
+                              });
+                              Scaffold.of(context).showSnackBar(SnackBar(
+                                content: Text("Processing..."),
+                              ));
                             }
                           },
                         ),
@@ -109,7 +118,8 @@ class DonateInfoFormState extends State<DonateInfoForm> {
       ),
     );
   }
-  void _save(){
+
+  void _save() {
     try {
       _formKey.currentState.save();
     } catch (e) {
