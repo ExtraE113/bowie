@@ -1,5 +1,6 @@
 import 'package:bowie/screens/donate_detail/donate_detail.dart';
 import 'package:bowie/screens/on_board/authenticate.dart';
+import 'package:bowie/screens/payment/payment.dart';
 import 'package:bowie/services/auth.dart';
 
 import 'package:flutter/cupertino.dart';
@@ -31,7 +32,8 @@ class HomeDrawer extends StatelessWidget {
                   Spacer(),
                   FutureBuilder(
                     future: _auth.getUser(),
-                    builder: (BuildContext context, data) => Text(data.hasData ? data.data.email : "Username"),
+                    builder: (BuildContext context, data) =>
+                        Text(data.hasData ? data.data.email : "Username"),
                   ),
                   Spacer(flex: 3),
                 ],
@@ -67,7 +69,12 @@ class HomeDrawer extends StatelessWidget {
           ),
           Divider(),
           RaisedButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => PaymentInformation()));
+            },
             child: ListTile(
               leading: Icon(Icons.account_balance_wallet),
               title: Text("Payment"),

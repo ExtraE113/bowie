@@ -41,4 +41,15 @@ class FirestoreService {
     final _userDocSettings = _userDoc.data["settings.$field"];
     return _userDocSettings ?? Map();
   }
+
+  Future<List> getCards() async {
+    final DocumentReference _userDocRef = await documentRef();
+    final _userDoc = await _userDocRef.get();
+    print(_userDoc.data);
+    if(_userDoc.data == null){
+      return List();
+    }
+    final _userDocCards = _userDoc.data["cards"];
+    return _userDocCards ?? List();
+  }
 }
