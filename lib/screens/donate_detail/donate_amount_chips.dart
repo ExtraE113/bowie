@@ -3,6 +3,7 @@
 import 'dart:collection';
 
 import 'package:bowie/services/cloud_firestore.dart';
+import 'package:bowie/utils/util_functions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -300,31 +301,14 @@ class ChipData {
 
   @override
   String toString() {
-    return _centsToDollarsRepresentation(cents);
+    return UtilFunction.centsToDollarsRepresentation(cents);
   }
 
   String displayString() {
     return "${isOther ? "Other: " : ""}${toString()}";
   }
 
-  String _centsToDollarsRepresentation(int cents) {
-    int _dollars = (cents / 100).truncate();
-    int _onlyCents = cents - (_dollars * 100);
 
-    String _centsString = _onlyCents.toString();
-
-    if (_centsString.length == 1 && _onlyCents == 0) {
-      _centsString += "0";
-    } else if (_centsString.length == 1) {
-      _centsString = "0" + _centsString;
-    }
-
-    if (_onlyCents == 0) {
-      return "\$$_dollars";
-    } else {
-      return "\$$_dollars.$_centsString";
-    }
-  }
 }
 
 class _SelectedQueue<E> extends ListQueue<E> {

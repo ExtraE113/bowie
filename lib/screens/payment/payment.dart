@@ -29,9 +29,8 @@ class _PaymentInformationState extends State<PaymentInformation> {
       ),
       floatingActionButton: FloatingActionButton(
           onPressed: () async {
-            final _square = SquareService();
             try {
-              final bool saved = await _square.save();
+              final bool saved = await SquareService().save();
               if (saved) {
                 setState(() {
                   _fabIcon = Icon(Icons.check);

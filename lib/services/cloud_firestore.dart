@@ -33,23 +33,44 @@ class FirestoreService {
 
   Future<Map> getSettings(String field) async {
     final DocumentReference _userDocRef = await documentRef();
-    final _userDoc = await _userDocRef.get();
-    print(_userDoc.data);
-    if(_userDoc.data == null){
+    final DocumentSnapshot _userDoc = await _userDocRef.get();
+    if (_userDoc.data == null) {
       return Map();
     }
     final _userDocSettings = _userDoc.data["settings.$field"];
     return _userDocSettings ?? Map();
   }
 
+  Stream<Map> getSettingsStream(String field) async* {
+    final DocumentReference _userDocRef = await documentRef();
+    yield* _userDocRef.snapshots().map<Map>((DocumentSnapshot data) {
+      if (data.data == null) {
+        return Map();
+      }
+      final _userDocSettings = data.data["settings.$field"];
+      return _userDocSettings ?? Map();
+    });
+  }
+
   Future<List> getCards() async {
     final DocumentReference _userDocRef = await documentRef();
     final _userDoc = await _userDocRef.get();
     print(_userDoc.data);
-    if(_userDoc.data == null){
+    if (_userDoc.data == null) {
       return List();
     }
     final _userDocCards = _userDoc.data["cards"];
+    return _userDocCards ?? List();
+  }
+
+  Future<List> getHistory() async {
+    final DocumentReference _userDocRef = await documentRef();
+    final _userDoc = await _userDocRef.get();
+    print(_userDoc.data);
+    if (_userDoc.data == null) {
+      return List();
+    }
+    final _userDocCards = _userDoc.data["history"];
     return _userDocCards ?? List();
   }
 }

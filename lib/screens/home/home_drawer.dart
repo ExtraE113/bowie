@@ -1,4 +1,5 @@
 import 'package:bowie/screens/donate_detail/donate_detail.dart';
+import 'package:bowie/screens/history/history.dart';
 import 'package:bowie/screens/on_board/authenticate.dart';
 import 'package:bowie/screens/payment/payment.dart';
 import 'package:bowie/services/auth.dart';
@@ -61,11 +62,16 @@ class HomeDrawer extends StatelessWidget {
           Divider(),
           RaisedButton(
             child: ListTile(
-              leading: Icon(Icons.account_box),
-              title: Text("Account"),
+              leading: Icon(Icons.history),
+              title: Text("History"),
             ),
             color: Colors.grey[50],
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => History()));
+            },
           ),
           Divider(),
           RaisedButton(
