@@ -1,5 +1,6 @@
 import 'package:bowie/screens/history/donation_event.dart';
 import 'package:bowie/services/cloud_firestore.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 
 class History extends StatefulWidget {
@@ -34,31 +35,40 @@ class _HistoryState extends State<History> {
                 title: Container(
                   padding: EdgeInsets.only(bottom: 3),
                   child: Text(
-                    "Donation",
+                    "Donation history",
                     style: Theme.of(context).textTheme.headline6,
                   ),
                 ),
-                subtitle:
-                Text("Review all your previous donations"),
+                subtitle: Text(
+                    "Review your generous contributions. \n This also serves as your receipt."),
               ),
               FutureBuilder(
                 future: _data,
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
-                    List sorted = snapshot.data;
-                    sorted.sort((a, b) {
-                      return (a["time"].compareTo(b["time"]) *-1); //sort newest to oldest
-                    });
+                    List events = snapshot.data;
+                    events.sort((a, b) => (a["time"].compareTo(b["time"])*-1)); //reverse sort newest to oldest
+                    print(snapshot.data);
                     return Column(
                       children: [
-                        for (Map<String, dynamic> i in sorted) DonationEvent(i),
+                        for (Map<String, dynamic> i in events)
+                          DonationEvent(i),
                       ],
                     );
-                  } else {
-                    return Column(
-                      children: [DonationEvent.loading()],
+                  } else if (snapshot.hasError) {
+                    Future.delayed(Duration(milliseconds: 500)).then((_) =>
+                        _showErrorDialog(
+                          Text("Something went wrong."),
+                          child: Text("That's all we know. Error code 6489."),
+                        )
                     );
+                    Crashlytics.instance
+                        .log("Error code 9206");
+                    Crashlytics.instance.log(snapshot.error.toString());
                   }
+                  return Column(
+                    children: [DonationEvent.loading()],
+                  );
                 },
               ),
             ],
@@ -66,6 +76,34 @@ class _HistoryState extends State<History> {
           color: Theme.of(context).backgroundColor,
         ),
       ),
+    );
+  }
+
+  Future<void> _showErrorDialog(Widget title,
+      {Widget child, List<Widget> actions}) async {
+    if (actions == null) {
+      actions = <Widget>[
+        FlatButton(
+          child: Text('Ok'),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+      ];
+    }
+
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: title,
+          content: SingleChildScrollView(
+            child: child,
+          ),
+          actions: actions,
+        );
+      },
     );
   }
 }

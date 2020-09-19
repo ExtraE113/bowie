@@ -1,3 +1,4 @@
+import 'package:bowie/screens/direct_home_page.dart';
 import 'package:bowie/screens/on_board/authenticate.dart';
 import 'package:bowie/services/square.dart';
 import 'package:flutter/cupertino.dart';
@@ -89,7 +90,11 @@ class DonateInfoFormState extends State<DonateInfoForm> {
                                 Provider.of<LoginAction>(context, listen: false)
                                     .doneOnBoarding = true;
                                 print("here");
-                                Navigator.of(context).pushReplacementNamed('/');
+                                Navigator.of(context).pushReplacement(
+                                    MaterialPageRoute(
+                                        builder: (BuildContext context) {
+                                  return DirectHomePage();
+                                }));
                               }
                             }
                           },

@@ -7,9 +7,8 @@ class CardInfo extends StatelessWidget {
   int expYear;
   int expMonth;
   String cardBrand;
+  Key key;
   bool loading = false;
-
-  CardInfo.individual(this.last4, this.expYear, this.expMonth, this.cardBrand);
 
 
   CardInfo(Map<String, dynamic> map){
@@ -17,6 +16,8 @@ class CardInfo extends StatelessWidget {
     this.expYear = map["exp_year"];
     this.expMonth = map["exp_month"];
     this.cardBrand = map["card_brand"];
+    this.key = ValueKey("$last4$expYear$expMonth$cardBrand$loading");
+    //probably a better key to use, but because it's only created once when the widget is generated it doesn't matter.
   }
 
   CardInfo.loading(){
@@ -25,35 +26,24 @@ class CardInfo extends StatelessWidget {
     this.expYear = -1;
     this.expMonth = -1;
     this.cardBrand = "";
+    //Is this code duplication? yes. does it make sense for both of these to inherit from a parent constructor? no.
+    this.key = ValueKey("$last4$expYear$expMonth$cardBrand$loading");
+    //probably a better key to use, but because it's only created once when the widget is generated it doesn't matter.
   }
 
   @override
   Widget build(BuildContext context) {
-    return Dismissible(
-      onDismissed: (_){}, //TODO implement
-      background: Container(
-        color: Colors.red,
-        child: Row(
-          children: [
-            Spacer(flex: 5),
-            Icon(Icons.delete_forever),
-            Spacer()
-          ],
-        ),
-      ),
-      direction: DismissDirection.endToStart,
-      key: UniqueKey(),
-      child: ListTile(
-        leading: Icon(Icons.account_balance_wallet),
-        title: !loading ? Text("**** **** **** ${this.last4}") : PlaceholderLines(count: 1),
-        subtitle: Row(
-          children: [
-            !loading ? Text(this.cardBrand) : Container(width: 90,child: PlaceholderLines(count: 1)),
-            Spacer(flex: 3),
-            !loading ? Text("${this.expMonth}/${this.expYear}") : Container(width: 90,child: PlaceholderLines(count: 1)),
-            Spacer(flex: 4)
-          ],
-        ),
+    return ListTile(
+      leading: Icon(Icons.account_balance_wallet),
+      trailing: Icon(Icons.reorder),
+      title: !loading ? Text("**** **** **** ${this.last4}") : PlaceholderLines(count: 1),
+      subtitle: Row(
+        children: [
+          !loading ? Text(this.cardBrand) : Container(width: 90,child: PlaceholderLines(count: 1)),
+          Spacer(flex: 3),
+          !loading ? Text("${this.expMonth}/${this.expYear}") : Container(width: 90,child: PlaceholderLines(count: 1)),
+          Spacer(flex: 4)
+        ],
       ),
     );
   }

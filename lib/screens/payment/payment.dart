@@ -11,14 +11,44 @@ class PaymentInformation extends StatefulWidget {
 
 class _PaymentInformationState extends State<PaymentInformation> {
   FirestoreService _firestore;
-  Future<List> _data;
+  List _cards;
   Icon _fabIcon = Icon(Icons.add);
+  Future<String> _initialDefaultCard;
 
   @override
   void initState() {
     super.initState();
     _firestore = FirestoreService();
-    _data = _firestore.getCards();
+    _initialDefaultCard = _firestore.getDefaultCard();
+    _firestore.getCards().then((value) async {
+      print("24");
+      String _idc = await _initialDefaultCard;
+      setState(() {
+        _cards = List();
+        value.sort((a, b) {
+          if (a["id"] == _idc) return -100;
+          if (b["id"] == _idc) return 100;
+          return 0;
+        });
+        _cards.addAll(value);
+      });
+    }).catchError((e, st) {
+      Crashlytics.instance.recordError(e, st);
+      _showErrorDialog(Text("Something went wrong."),
+          child: Text("That's all we know."));
+    });
+    _firestore.getCardsStream().listen((event) async {
+      //ugly but works
+      while (_cards == null) await Future.delayed(Duration(milliseconds: 250));
+      setState(() {
+        _cards.insert(0, event);
+      });
+      _firestore.setDefaultCard(event["id"]);
+    }).onError((e, st) {
+      Crashlytics.instance.recordError(e, st);
+      _showErrorDialog(Text("Something went wrong."),
+          child: Text("That's all we know."));
+    });
   }
 
   @override
@@ -34,7 +64,6 @@ class _PaymentInformationState extends State<PaymentInformation> {
               if (saved) {
                 setState(() {
                   _fabIcon = Icon(Icons.check);
-                  _data = _firestore.getCards();
                 });
               }
             } catch (e, st) {
@@ -65,10 +94,10 @@ class _PaymentInformationState extends State<PaymentInformation> {
       body: SafeArea(
         child: Container(
           padding: const EdgeInsets.all(8.0),
-          child: ListView(
-            physics: ClampingScrollPhysics(),
-            children: [
-              ListTile(
+          child: Container(
+            color: Theme.of(context).backgroundColor,
+            child: ReorderableListView(
+              header: ListTile(
                 title: Container(
                   padding: EdgeInsets.only(bottom: 3),
                   child: Text(
@@ -76,30 +105,60 @@ class _PaymentInformationState extends State<PaymentInformation> {
                     style: Theme.of(context).textTheme.headline6,
                   ),
                 ),
-                subtitle:
-                    Text("Review, add, or delete payment information."),
+                subtitle: Text(
+                    "Review or add payment information. \nThe top card is the default payment method. Drag and drop to reorder."),
               ),
-              FutureBuilder(
-                future: _data,
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    return Column(
-                      children: [
-                        for (Map<String, dynamic> i in snapshot.data) CardInfo(i),
-                      ],
-                    );
-                  } else {
-                    return Column(
-                      children: [CardInfo.loading()],
-                    );
-                  }
-                },
-              ),
-            ],
+              onReorder: (int oldIndex, int newIndex) {
+                var item;
+                setState(
+                  () {
+                    if (newIndex > oldIndex) {
+                      newIndex -= 1;
+                    }
+                    item = _cards.removeAt(oldIndex);
+                    _cards.insert(newIndex, item);
+                  },
+                );
+                if (newIndex == 0) {
+                  _firestore.setDefaultCard(item["id"]);
+                }
+              },
+              children: [
+                if (_cards != null) for (var i in _cards) CardInfo(i),
+                if (_cards == null) CardInfo.loading()
+              ],
+            ),
           ),
-          color: Theme.of(context).backgroundColor,
         ),
       ),
+    );
+  }
+
+  Future<void> _showErrorDialog(Widget title,
+      {Widget child, List<Widget> actions}) async {
+    if (actions == null) {
+      actions = <Widget>[
+        FlatButton(
+          child: Text('Ok'),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+      ];
+    }
+
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: title,
+          content: SingleChildScrollView(
+            child: child,
+          ),
+          actions: actions,
+        );
+      },
     );
   }
 }

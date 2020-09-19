@@ -70,8 +70,6 @@ class _DonateButtonState extends State<DonateButton> {
                                       Crashlytics.instance
                                           .log("Error code 9206");
                                       Crashlytics.instance.recordError(e, st);
-                                      Crashlytics.instance.log(
-                                          "Something went wrong. | Error code 9206");
                                       _showErrorDialog(
                                         Text("Something went wrong"),
                                         child: Text(
