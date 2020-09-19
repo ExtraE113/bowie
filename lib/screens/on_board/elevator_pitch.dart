@@ -22,7 +22,7 @@ class OnBoardCarousel extends StatelessWidget {
       ),
       OnBoardPage(
         asset: "assets/onboard/secure.svg",
-        mainTitle: "Security",
+        mainTitle: "Give Securely",
         subTitle:
             "Your security is very important to us. We're PCI compliant,  just one of our steps to protect your sensitive information.",
       ),
@@ -51,20 +51,23 @@ class OnBoardPage extends StatelessWidget {
       @required this.mainTitle,
       @required this.subTitle,
       this.buttonText = "GET STARTED"});
+  ScrollController _controller = ScrollController();
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) => onAfterBuild(context, _controller));
     return Container(
       color: Theme.of(context).backgroundColor,
       child: Padding(
         padding: EdgeInsets.all(32.0),
-        child: Column(
+        child: ListView(
+          controller: _controller,
+          physics: NeverScrollableScrollPhysics(),
           children: [
             AspectRatio(
               aspectRatio: 1,
               child: SvgPicture.asset(asset),
             ),
-            Spacer(flex: 3),
             Text(
               mainTitle,
               style: Theme.of(context)
@@ -72,12 +75,12 @@ class OnBoardPage extends StatelessWidget {
                   .headline4
                   .copyWith(color: Colors.black),
             ),
-            Spacer(),
+            SizedBox(height: 20),
             Text(
               subTitle,
               style: Theme.of(context).textTheme.caption.copyWith(fontSize: 16),
             ),
-            Spacer(flex: 4),
+            SizedBox(height: 20),
             RaisedButton(
               child: Text(buttonText,
                   style: Theme.of(context)
@@ -85,13 +88,16 @@ class OnBoardPage extends StatelessWidget {
                       .button
                       .copyWith(fontSize: 20)),
               onPressed: () {
-                Navigator.of(context).pushReplacementNamed('/auth');
+                Navigator.of(context).pushNamed('/auth');
               },
             ),
-            Spacer(flex: 3)
           ],
         ),
       ),
     );
   }
+}
+
+void onAfterBuild(BuildContext context, ScrollController controller) {
+  controller.jumpTo(controller.position.maxScrollExtent);
 }
