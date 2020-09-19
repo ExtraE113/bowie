@@ -69,9 +69,7 @@ class _AuthenticateState extends State<Authenticate> {
         appBar: AppBar(
           title: Consumer<LoginAction>(
             builder: (BuildContext context, LoginAction value, Widget child) {
-              return value.login
-                  ? Text("Sign in")
-                  : Text("Start supporting the food bank");
+              return value.login ? Text("Sign in") : Text("Start supporting the food bank");
             },
           ),
         ),
@@ -116,9 +114,7 @@ class _AuthenticateState extends State<Authenticate> {
               color: Colors.grey,
             )),
         validator: (value) {
-          return !EmailValidator.validate(value.trim())
-              ? 'Must be a valid email address'
-              : null;
+          return !EmailValidator.validate(value.trim()) ? 'Must be a valid email address' : null;
         },
         onChanged: (value) => _email = value,
       ),
@@ -139,8 +135,7 @@ class _AuthenticateState extends State<Authenticate> {
               color: Colors.grey,
             )),
         // todo implement better password strength-- zxcvbn port?
-        validator: (value) =>
-            value.length < 6 ? 'Password must be at least 6 characters' : null,
+        validator: (value) => value.length < 6 ? 'Password must be at least 6 characters' : null,
         onChanged: (value) => _passwd = value,
       ),
     );
@@ -154,12 +149,10 @@ class _AuthenticateState extends State<Authenticate> {
         child: Consumer<LoginAction>(builder: (context, loginAction, child) {
           return RaisedButton(
             elevation: 5.0,
-            shape: RoundedRectangleBorder(
-                borderRadius: new BorderRadius.circular(30.0)),
+            shape: RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
             color: Theme.of(context).primaryColor,
             child: Consumer<LoginAction>(
-              builder: (BuildContext context, LoginAction loginAction,
-                  Widget child) {
+              builder: (BuildContext context, LoginAction loginAction, Widget child) {
                 return Text(loginAction.login ? 'Login' : 'Create Account',
                     style: TextStyle(fontSize: 20.0, color: Colors.white));
               },
@@ -187,20 +180,21 @@ class _AuthenticateState extends State<Authenticate> {
                   if (loginAction.login) {
                     var result = await _authService.signInWithEmailAndPassword(
                         _email.trim() /*todo fixme*/, _passwd);
-                    Navigator.of(context).pushReplacementNamed('/');
+                    Navigator.of(context)
+                        .pushNamedAndRemoveUntil('/', (route) => false);
+
                   } else {
-                    var result =
-                        await _authService.registerWithEmailAndPassword(
-                            _email.trim() /*todo fixme*/, _passwd);
-                    Navigator.of(context).pushReplacementNamed('/donate-detail-first');
+                    var result = await _authService.registerWithEmailAndPassword(
+                        _email.trim() /*todo fixme*/, _passwd);
+                    Navigator.of(context)
+                        .pushNamedAndRemoveUntil('/donate-detail-first', (route) => false);
                   }
                 } catch (e) {
                   setState(() {
                     _hasError = true;
                   });
                   Scaffold.of(context).showSnackBar(SnackBar(
-                      content: Text(e.message +
-                          " Please check your input and try again.")));
+                      content: Text(e.message + " Please check your input and try again.")));
                 }
               }
             },
@@ -214,13 +208,10 @@ class _AuthenticateState extends State<Authenticate> {
     return Consumer<LoginAction>(
       builder: (context, LoginAction loginAction, child) {
         return FlatButton(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
           onPressed: loginAction.toggleLoginAction,
           child: Text(
-            loginAction.login
-                ? 'Create an account'
-                : 'Have an account? Sign in',
+            loginAction.login ? 'Create an account' : 'Have an account? Sign in',
             style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w300),
           ),
         );
@@ -238,8 +229,7 @@ class SkipButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final _auth = AuthService();
     return new FlatButton(
-        shape: new RoundedRectangleBorder(
-            borderRadius: new BorderRadius.circular(30.0)),
+        shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
         child: new Text('Skip for now',
             style: new TextStyle(fontSize: 15.0, fontWeight: FontWeight.w300)),
         onPressed: () {

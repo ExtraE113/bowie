@@ -5,6 +5,7 @@ import 'package:bowie/services/cloud_firestore.dart';
 import 'package:bowie/services/square.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 
 class DonateButton extends StatefulWidget {
   @override
@@ -67,13 +68,11 @@ class _DonateButtonState extends State<DonateButton> {
                                       }
                                     } catch (e, st) {
                                       //random error code
-                                      Crashlytics.instance
-                                          .log("Error code 9206");
+                                      Crashlytics.instance.log("Error code 9206");
                                       Crashlytics.instance.recordError(e, st);
                                       _showErrorDialog(
                                         Text("Something went wrong"),
-                                        child: Text(
-                                            "That's all we know. \n Error code 9206"),
+                                        child: Text("That's all we know. \n Error code 9206"),
                                       );
                                     }
                                   } else {
@@ -88,10 +87,7 @@ class _DonateButtonState extends State<DonateButton> {
                                 SizedBox(width: 10),
                                 Text(
                                   "${ChipData(cents[i])}",
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .button
-                                      .copyWith(fontSize: 20),
+                                  style: Theme.of(context).textTheme.button.copyWith(fontSize: 20),
                                 ),
                               ],
                             ),
@@ -128,13 +124,17 @@ class _DonateButtonState extends State<DonateButton> {
         _buttonStates[i][0] = Icon(Icons.cancel);
       });
       return null;
-    }, test: (e) => e is TimeoutException).catchError((error) {
+    }, test: (e) => e is TimeoutException).catchError((error, st) {
       setState(() {
         _buttonStates[i][1] = -1;
         _buttonStates[i][0] = Icon(Icons.cancel);
       });
-
-      _showErrorDialog(Text(error.toString()));
+      Crashlytics.instance.log("Error code 3419");
+      Crashlytics.instance.recordError(error, st);
+      _showErrorDialog(
+        Text("Something went wrong"),
+        child: Text("That's all we know. \n Error code 3419"),
+      );
       return null;
     }).whenComplete(() => Future.delayed(Duration(seconds: 2)).then((value) {
           setState(() {
@@ -144,8 +144,7 @@ class _DonateButtonState extends State<DonateButton> {
         }));
   }
 
-  Future<void> _showErrorDialog(Widget title,
-      {Widget child, List<Widget> actions}) async {
+  Future<void> _showErrorDialog(Widget title, {Widget child, List<Widget> actions}) async {
     if (actions == null) {
       actions = <Widget>[
         FlatButton(

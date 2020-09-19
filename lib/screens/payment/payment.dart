@@ -21,7 +21,6 @@ class _PaymentInformationState extends State<PaymentInformation> {
     _firestore = FirestoreService();
     _initialDefaultCard = _firestore.getDefaultCard();
     _firestore.getCards().then((value) async {
-      print("24");
       String _idc = await _initialDefaultCard;
       setState(() {
         _cards = List();

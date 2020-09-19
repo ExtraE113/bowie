@@ -1,23 +1,25 @@
 import 'dart:async';
 
 import 'package:bowie/services/auth.dart';
+import 'package:bowie/services/cloud_firestore.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:http/http.dart';
 import 'package:square_in_app_payments/models.dart';
 import 'package:square_in_app_payments/in_app_payments.dart';
 
 class SquareService {
-  static const local_server = false;
+  static const local_server = true;
   static const donate_endpoint_url = local_server
-      ? 'http://192.168.7.160:8081'
+      ? 'http://10.0.2.2:8081'
       : "https://us-central1-donation-app-281420.cloudfunctions.net/donate_endpoint";
 
   static const add_cof_url = local_server
-      ? 'http://192.168.7.160:8080'
+      ? 'http://10.0.2.2:8080'
       : "https://us-central1-donation-app-281420.cloudfunctions.net/add_cof";
   static const square_application_id = "sandbox-sq0idb-u0xVRfqSvIDBU-2qw__JEQ";
   final Completer _completer = new Completer<bool>();
   final _auth = AuthService();
+  final _firestore = FirestoreService();
   int cents = 1;
 
   //<editor-fold desc="save">

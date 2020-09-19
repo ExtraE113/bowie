@@ -59,7 +59,7 @@ class OnBoardPage extends StatelessWidget {
     return Container(
       color: Theme.of(context).backgroundColor,
       child: Padding(
-        padding: EdgeInsets.all(32.0),
+        padding: EdgeInsets.fromLTRB(32.0, 0, 32.0, 32.0),
         child: ListView(
           controller: _controller,
           physics: NeverScrollableScrollPhysics(),

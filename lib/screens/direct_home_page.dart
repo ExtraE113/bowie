@@ -21,7 +21,7 @@ class _DirectHomePageState extends State<DirectHomePage> {
     _subscription = stream.listen(
       (event) {
         if (event == null) {
-          Navigator.of(context).pushReplacementNamed('/carousel');
+          Navigator.of(context).pushNamedAndRemoveUntil('/carousel', (route) => false);
         }
       },
       cancelOnError: false,
@@ -31,8 +31,7 @@ class _DirectHomePageState extends State<DirectHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<LoginAction>(
-        builder: (BuildContext context, LoginAction value, Widget child) {
+    return Consumer<LoginAction>(builder: (BuildContext context, LoginAction value, Widget child) {
       if (value.doneOnBoarding) {
         return HomePage();
       } else {
