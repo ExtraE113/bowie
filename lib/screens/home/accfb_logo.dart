@@ -1,5 +1,7 @@
-import 'package:bowie/screens/home/about_accfb.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
+
 
 class Logo extends StatelessWidget {
   const Logo({
@@ -8,9 +10,54 @@ class Logo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Future<void> _showErrorDialog(Widget title,
+        {Widget child, List<Widget> actions}) async {
+      if (actions == null) {
+        actions = <Widget>[
+          FlatButton(
+            child: Text('Ok'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ];
+      }
+
+      return showDialog<void>(
+        context: context,
+        barrierDismissible: true,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: title,
+            content: SingleChildScrollView(
+              child: child,
+            ),
+            actions: actions,
+          );
+        },
+      );
+    }
+
+    _launchURL() async {
+      const url = 'https://accfb.org';
+
+      try {
+        if (await canLaunch(url)) {
+          await launch(url);
+        } else {
+          throw 'Could not launch $url';
+        }
+      } catch (e, st) {
+        Crashlytics.instance.recordError(e, st);
+        _showErrorDialog(Text("Something went wrong."),
+            child: Text("That's all we know. Error code 9673."));
+      }
+    }
+
+
+
     return GestureDetector(
-      onTap: () =>
-          Navigator.push(context, MaterialPageRoute(builder: (context) => AboutACCFB())),
+      onTap: _launchURL,
       child: ConstrainedBox(
         constraints: BoxConstraints(maxHeight: 60),
         child: Container(
@@ -26,5 +73,9 @@ class Logo extends StatelessWidget {
         ),
       ),
     );
+
   }
+
+
+
 }
