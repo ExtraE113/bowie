@@ -10,13 +10,13 @@ import 'package:square_in_app_payments/in_app_payments.dart';
 class SquareService {
   static const local_server = true;
   static const donate_endpoint_url = local_server
-      ? 'http://10.0.2.2:8081'
+      ? 'http://localhost:8081'
       : "https://us-central1-donation-app-281420.cloudfunctions.net/donate_endpoint";
 
   static const add_cof_url = local_server
-      ? 'http://10.0.2.2:8080'
+      ? 'http://localhost:8080'
       : "https://us-central1-donation-app-281420.cloudfunctions.net/add_cof";
-  static const square_application_id = "sandbox-sq0idb-u0xVRfqSvIDBU-2qw__JEQ";
+  static const square_application_id = "sq0idp-P7A-ZBrYXl4NREZApK_2tg";
   final Completer _completer = new Completer<bool>();
   final _auth = AuthService();
   final _firestore = FirestoreService();
@@ -65,12 +65,25 @@ class SquareService {
     // check the status code for the result
     int statusCode = response.statusCode;
     try {
-      if (statusCode != 200) {
-        throw Exception(response);
+      switch (response.statusCode) {
+        case 200:
+          {
+            InAppPayments.completeCardEntry(
+              onCardEntryComplete: _saveOnCardEntryComplete,
+            );
+          }
+          break;
+        case 400:
+          {
+            InAppPayments.showCardNonceProcessingError(
+                response.body.toString());
+          }
+          break;
+        default: {
+          throw Exception(response);
+        }
+        break;
       }
-      InAppPayments.completeCardEntry(
-        onCardEntryComplete: _saveOnCardEntryComplete,
-      );
     } catch (e, st) {
       Crashlytics.instance.recordError(e, st);
       InAppPayments.showCardNonceProcessingError(

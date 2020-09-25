@@ -232,7 +232,7 @@ class _OtherAmountFormState extends State<_OtherAmountForm> {
         children: <Widget>[
           TextFormField(
             decoration: InputDecoration(icon: Icon(Icons.attach_money)),
-            keyboardType: TextInputType.number,
+            keyboardType: TextInputType.numberWithOptions(decimal: true),
             autofocus: true,
             validator: (value) {
               if (value.isEmpty) {
